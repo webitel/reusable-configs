@@ -27,7 +27,7 @@
 
 name: Workflow ({{ name }})
 run-name: >
-  {{ name }}@{{ workflow.run-name }}
+  {{ name }}@{{ workflow["run-name"] }}
 
 on:
   push:
@@ -35,21 +35,21 @@ on:
 
 permissions: { contents: read }
 concurrency:
-  group: {{ workflow.concurrency-group }}
+  group: {{ workflow["concurrency-group"] }}
   cancel-in-progress: true
 
 jobs:
   prepare:
     name: Prepare
-    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ workflow["version"] }}
     with:
-      development-branch: {{ branch.development }}
-      triggered-branch: {{ branch.triggered }}
+      development-branch: {{ branch["default"] }}
+      triggered-branch: {{ branch["triggered"] }}
 
   checks:
     name: Checks
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@{{ workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@{{ workflow["version"] }}
     permissions:
       contents: read
       actions: read
@@ -58,35 +58,35 @@ jobs:
   compile:
     name: Build
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@{{ workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@{{ workflow["version"] }}
     with:
-      binary-name: {{ build.binary-name }}
+      binary-name: {{ build["binary-name"] }}
       ldflags: >
-        {{ build.ldflags }}
+        {{ build["ldflags"] }}
 
-      version: {{ branch.version }}
-      version-build: {{ branch.run-number }}
-      prerelease: {{ branch.prerelease }}
-      package-name: {{ vars.package }}
-      package-description: {{ branch.description }}
+      version: {{ branch["version"] }}
+      version-build: {{ branch["run-number"] }}
+      prerelease: {{ branch["prerelease"] }}
+      package-name: {{ vars["package"] }}
+      package-description: {{ branch["description"] }}
       package-contents: |
-        {{ build.package-contents }}
+        {{ build["package-contents"] }}
 
       scripts: |
-        {{ build.scripts }}
+        {{ build["scripts"] }}
 
   deploy:
     name: Deploy
     needs: [ prepare, compile ]
-    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@{{ workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@{{ workflow["version"] }}
     permissions: { contents: write }
     secrets: inherit
     with:
-      tag: {{ branch.tag }}
-      tag-target-commitish: {{ branch.commit-sha }}
-      repository-environment: {{ branch.environment }}
-      deb-package-pattern: {{ vars.package-pattern }}
-      deb-component: {{ vars.component }}
-      deb-codename: {{ vars.codename }}
-      deb-aws-bucket-name: {{ vars.aws-bucket }}
-      deb-aws-bucket-region: {{ vars.aws-region }}
+      tag: {{ branch["tag"] }}
+      tag-target-commitish: {{ branch["commit-sha"] }}
+      repository-environment: {{ branch["environment"] }}
+      deb-package-pattern: {{ vars["package-pattern"] }}
+      deb-component: {{ vars["component"] }}
+      deb-codename: {{ vars["codename"] }}
+      deb-aws-bucket-name: {{ vars["aws-bucket"] }}
+      deb-aws-bucket-region: {{ vars["aws-region"] }}
