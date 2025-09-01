@@ -26,6 +26,7 @@ group:
         dest: .github/workflows/workflow.yml
         template:
           name: webitel-wfm
+          default-branch: main
           build:
             binary-name: webitel-wfm
             ldflags: >
