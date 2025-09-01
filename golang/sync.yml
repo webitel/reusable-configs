@@ -29,7 +29,7 @@ group:
           default-branch: main
           build:
             binary-name: webitel-wfm
-            ldflags: >
+            ldflags: |
               -s -w
               -X github.com/webitel/webitel-wfm/cmd.version=${{ needs.prepare.outputs.version }}-${{ needs.prepare.outputs.version-build }}
               -X github.com/webitel/webitel-wfm/cmd.commit=${{ github.sha }}
