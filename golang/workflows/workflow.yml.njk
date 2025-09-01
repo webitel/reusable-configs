@@ -1,28 +1,28 @@
 {% set workflow = {
-    version: '01d63ddea17885ce796f8d634580c2b188a1e735',
-    run-name: '${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message || github.event.pull_request.title || 'Manual trigger' }}',
-    concurrency-group: '${{ github.workflow }}-${{ github.ref }}'
+    "version": "01d63ddea17885ce796f8d634580c2b188a1e735",
+    "run-name": "${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message || github.event.pull_request.title || 'Manual trigger' }}",
+    "concurrency-group": "${{ github.workflow }}-${{ github.ref }}"
 } %}
 
 {% set branch = {
-    default: '${{ github.event.repository.default_branch }}',
-    triggered: '${{ github.ref_name }}',
-    run-number: '${{ github.run_number }}',
-    prerelease: '${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}',
-    version: '${{ needs.prepare.outputs.version }}',
-    description: '${{ github.event.repository.description }}',
-    tag: '${{ github.event.repository.default_branch != github.ref_name && format('{0}-{1}', needs.prepare.outputs.version, github.run_number) || '' }}',
-    commit-sha: '${{ github.sha }}',
-    environment: '${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}'
+    "default": "${{ github.event.repository.default_branch }}",
+    "triggered": "${{ github.ref_name }}",
+    "run-number": "${{ github.run_number }}",
+    "prerelease": "${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}",
+    "version": "${{ needs.prepare.outputs.version }}",
+    "description": "${{ github.event.repository.description }}",
+    "tag": "${{ github.event.repository.default_branch != github.ref_name && format('{0}-{1}', needs.prepare.outputs.version, github.run_number) || '' }}",
+    "commit-sha": "${{ github.sha }}",
+    "environment": "${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}"
 } %}
 
 {% set vars = {
-    package: '${{ vars.SERVICE_NAME }}',
-    package-pattern: '${{ vars.SERVICE_NAME }}*.deb',
-    component: '${{ github.event.repository.default_branch == github.ref_name && 'dev' || format('{0}-releases', needs.prepare.outputs.version) }}',
-    codename: '${{ vars.DEB_CODENAME }}',
-    aws-bucket: '${{ vars.DEB_AWS_BUCKET_NAME }}',
-    aws-region: '${{ vars.DEB_AWS_DEFAULT_REGION }}'
+    "package": "${{ vars.SERVICE_NAME }}",
+    "package-pattern": "${{ vars.SERVICE_NAME }}*.deb",
+    "component": "${{ github.event.repository.default_branch == github.ref_name && 'dev' || format('{0}-releases', needs.prepare.outputs.version) }}",
+    "codename": "${{ vars.DEB_CODENAME }}",
+    "aws-bucket": "${{ vars.DEB_AWS_BUCKET_NAME }}",
+    "aws-region": "${{ vars.DEB_AWS_DEFAULT_REGION }}"
 } %}
 
 name: Workflow ({{ name }})
