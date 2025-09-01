@@ -17,7 +17,7 @@ jobs:
         with:
           GH_PAT: ${{ secrets.GH_PAT }}
           IS_FINE_GRAINED: true
-          CONFIG_PATH: sync.yml
+          CONFIG_PATH: golang/sync.yml
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: true
           OVERWRITE_EXISTING_PR: true
