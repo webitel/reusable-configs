@@ -70,10 +70,10 @@ jobs:
       package-name: {{ vars["package"] }}
       package-description: {{ branch["description"] }}
       package-contents: |
-        {{ build["package-contents"] }}
+        {{ build["package-contents"] | safe | indent(8) }}
 
       scripts: |
-        {{ build["scripts"] }}
+        {{ build["scripts"] | safe | indent(8) }}
 
   deploy:
     name: Deploy
