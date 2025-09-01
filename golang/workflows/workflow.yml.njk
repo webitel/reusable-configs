@@ -1,4 +1,4 @@
-{% include "./_defaults.njk" %}
+{% import "./_defaults.njk" as defs %}
 
 name: Workflow ({{ name }})
 run-name: >
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   prepare:
     name: Prepare
-    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ workflow["version"] }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ defs.workflow.version }}
     with:
       development-branch: {{ "${{ github.event.repository.default_branch }}" }}
       triggered-branch: {{ "${{ github.ref_name }}" }}
@@ -24,7 +24,7 @@ jobs:
   checks:
     name: Checks
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@{{ workflow["version"] }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@{{ defs.workflow.version }}
     permissions:
       contents: read
       actions: read
@@ -33,7 +33,7 @@ jobs:
   compile:
     name: Build
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@{{ workflow["version"] }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@{{ defs.workflow.version }}
     with:
       binary-name: {{ build["binary-name"] }}
       ldflags: >
@@ -53,7 +53,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [ prepare, compile ]
-    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@{{ workflow["version"] }}
+    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@{{ defs.workflow.version }}
     permissions: { contents: write }
     secrets: inherit
     with:
