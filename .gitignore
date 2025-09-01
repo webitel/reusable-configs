@@ -1,0 +1,14 @@
+# Editor junk
+*.sublime-workspace
+*.swp
+/.idea/
+.fleet/
+*.iml
+*.tmp
+/.vscode/
+.vs/
+.eslintcache
+.stylelintcache
+
+# Ignore OSX indexing
+.DS_Store
