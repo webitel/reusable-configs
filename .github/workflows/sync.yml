@@ -21,4 +21,4 @@ jobs:
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: true
           OVERWRITE_EXISTING_PR: true
-          DRY_RUN: true
+          DRY_RUN: false
