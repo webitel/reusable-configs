@@ -1,5 +1,5 @@
 definitions:
-  template/webitel-wfm: &template/webitel-wfm
+  template-webitel-wfm: &template-webitel-wfm
     name: webitel-wfm
     branch: main
     build:
@@ -44,8 +44,8 @@ group:
     files:
       - source: golang/workflows/workflow.yml.njk
         dest: .github/workflows/workflow.yml
-        template: *template/webitel-wfm
+        template: *template-webitel-wfm
 
       - source: golang/workflows/pull-request.yml.njk
         dest: .github/workflows/pull-request.yml
-        template: *template/webitel-wfm
+        template: *template-webitel-wfm
