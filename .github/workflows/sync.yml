@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v4.3.0
 
       - name: Sync files across repositories
-        uses: kirychukyurii/repo-file-sync-action@4dab6fc1c26e9a04c8eac86cccbe06478844a19c
+        uses: webitel/reusable-workflows/actions/file-sync-action@097c26a53ad445517ac74b73c0bc9af97e5c0aad
         with:
           GH_PAT: ${{ secrets.GH_PAT }}
           IS_FINE_GRAINED: true
