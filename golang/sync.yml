@@ -35,6 +35,9 @@ group:
       - source: golang/configs/dependabot.yml
         dest: .github/dependabot.yml
 
+      - source: golang/configs/.golangci.yaml
+        dest: .golangci.yaml
+
       - source: golang/configs/.env.otel.example
         dest: .env.otel.example
 
