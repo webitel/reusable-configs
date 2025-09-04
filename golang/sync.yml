@@ -43,9 +43,11 @@ group:
 
       - source: golang/workflows/backport-trigger.yml.njk
         dest: .github/workflows/backport-trigger.yml
+        template: true
 
       - source: golang/workflows/backport.yml.njk
         dest: .github/workflows/backport.yml
+        template: true
 
   - repos: |
       webitel/webitel-wfm
