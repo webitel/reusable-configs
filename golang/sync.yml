@@ -1,3 +1,23 @@
+definitions:
+  template/webitel-wfm: &template/webitel-wfm
+    name: webitel-wfm
+    branch: main
+    build:
+      binary-name: webitel-wfm
+      ldflags: |
+        -s -w
+        -X github.com/webitel/webitel-wfm/cmd.version=${{ needs.prepare.outputs.version }}-${{ github.run_number }}
+        -X github.com/webitel/webitel-wfm/cmd.commit=${{ github.sha }}
+        -X github.com/webitel/webitel-wfm/cmd.branch=${{ github.ref_name }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
 group:
   - repos: |
       webitel/webitel-wfm
@@ -24,22 +44,8 @@ group:
     files:
       - source: golang/workflows/workflow.yml.njk
         dest: .github/workflows/workflow.yml
-        template:
-          name: webitel-wfm
-          branch: main
-          build:
-            binary-name: webitel-wfm
-            ldflags: |
-              -s -w
-              -X github.com/webitel/webitel-wfm/cmd.version=${{ needs.prepare.outputs.version }}-${{ needs.prepare.outputs.version-build }}
-              -X github.com/webitel/webitel-wfm/cmd.commit=${{ github.sha }}
-              -X github.com/webitel/webitel-wfm/cmd.branch=${{ github.ref_name }}
+        template: *template/webitel-wfm
 
-            package-contents: |
-              src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-
-            scripts: |
-              preinstall: deploy/debian/preinst.sh
-              postinstall: deploy/debian/postinst.sh
-              preremove: deploy/debian/prerm.sh
-              
+      - source: golang/workflows/pull-request.yml.njk
+        dest: .github/workflows/pull-request.yml
+        template: *template/webitel-wfm
