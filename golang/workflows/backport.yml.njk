@@ -9,7 +9,9 @@ on:
     workflows: ["Backport (trigger)"]
     types: [ completed ]
 
-permissions: {}
+permissions:
+  id-token: write
+  actions: read
 
 jobs:
   backport:
