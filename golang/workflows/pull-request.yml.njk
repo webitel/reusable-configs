@@ -16,7 +16,7 @@ jobs:
     uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ defs.workflow.version }}
     with:
       development-branch: {{ "${{ github.event.repository.default_branch }}" }}
-      triggered-branch: " ${{ github.event.pull_request.base.ref }} "
+      triggered-branch: {{ "${{ github.event.pull_request.base.ref }}" }}
 
   checks:
     name: Checks
