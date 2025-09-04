@@ -12,8 +12,8 @@ on:
 permissions: {}
 
 jobs:
-  trigger:
-    name: Trigger backport
+  backport:
+    name: Backport
     uses: webitel/reusable-workflows/.github/workflows/_backport-trigger.yml@{{ defs.workflow.version }}
 
     # Only run this job if the PR has been merged and has a label containing "backport v"
