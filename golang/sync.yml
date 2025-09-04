@@ -41,6 +41,12 @@ group:
       - source: golang/configs/.env.otel.example
         dest: .env.otel.example
 
+      - source: golang/workflows/backport-trigger.yml.njk
+        dest: .github/workflows/backport-trigger.yml
+
+      - source: golang/workflows/backport.yml.njk
+        dest: .github/workflows/backport.yml
+
   - repos: |
       webitel/webitel-wfm
 
@@ -52,9 +58,3 @@ group:
       - source: golang/workflows/pull-request.yml.njk
         dest: .github/workflows/pull-request.yml
         template: *template/webitel-wfm
-
-      - source: golang/workflows/backport-trigger.yml.njk
-        dest: .github/workflows/backport-trigger.yml
-
-      - source: golang/workflows/backport.yml.njk
-        dest: .github/workflows/backport.yml
