@@ -1,30 +1,27 @@
-{% import "./_defaults.njk" as defs -%}
-
-name: Workflow ({{ name }})
-run-name: >
-  {{ name }}@{{ "${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message || github.event.pull_request.title || 'Manual trigger' }}" | safe }}
+name: Workflow (((( name ))))
+run-name: "((( name )))@${{ github.ref_name }}#${{ github.run_number }} - ${{ substr(replace(github.event.head_commit.message, '\n', ' '), 0, 50) }}"
 
 on:
   push:
-    branches: [ {{ branch | default("main") }}, "v[0-9]+.[0-9]+" ]
+    branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
 
 permissions: { contents: read }
 concurrency:
-  group: {{ "${{ github.workflow }}-${{ github.ref }}" }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   prepare:
     name: Prepare
-    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@{{ defs.workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@((( version )))
     with:
-      development-branch: {{ "${{ github.event.repository.default_branch }}" }}
-      triggered-branch: {{ "${{ github.ref_name }}" }}
+      development-branch: ${{ github.event.repository.default_branch }}
+      triggered-branch: ${{ github.ref_name }}
 
   checks:
     name: Checks
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@{{ defs.workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-checks.yml@((( version )))
     permissions:
       contents: read
       actions: read
@@ -33,35 +30,35 @@ jobs:
   compile:
     name: Build
     needs: [ prepare ]
-    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@{{ defs.workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/golang-build.yml@((( version )))
     with:
-      binary-name: {{ build["binary-name"] }}
+      binary-name: ((( build["binary-name"] )))
       ldflags: >
-        {{ build["ldflags"] | safe | indent(8) }}
+        ((( build["ldflags"] | safe | indent(8) )))
 
-      version: {{ "${{ needs.prepare.outputs.version }}" }}
-      version-build: {{ "${{ github.run_number }}" }}
-      prerelease: {{ "${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}" | safe }}
-      package-name: {{ name }}
-      package-description: {{ "${{ github.event.repository.description }}" }}
+      version: ${{ needs.prepare.outputs.version }}
+      version-build: ${{ github.run_number }}
+      prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+      package-name: ((( name )))
+      package-description: ${{ github.event.repository.description }}
       package-contents: |
-        {{ build["package-contents"] | safe | indent(8) }}
+        ((( build["package-contents"] | safe | indent(8) )))
 
       scripts: |
-        {{ build["scripts"] | safe | indent(8) }}
+        ((( build["scripts"] | safe | indent(8) )))
 
   deploy:
     name: Deploy
     needs: [ prepare, compile ]
-    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@{{ defs.workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@((( version )))
     permissions: { contents: write }
     secrets: inherit
     with:
-      tag: {{ "${{ github.event.repository.default_branch != github.ref_name && format('{0}-{1}', needs.prepare.outputs.version, github.run_number) || '' }}" | safe }}
-      tag-target-commitish: {{ "${{ github.sha }}" }}
-      repository-environment: {{ "${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}" | safe }}
-      deb-package-pattern: {{ name }}*.deb
-      deb-component: {{ "${{ github.event.repository.default_branch == github.ref_name && 'dev' || format('{0}-releases', needs.prepare.outputs.version) }}" | safe }}
-      deb-codename: {{ "${{ vars.DEB_CODENAME }}" }}
-      deb-aws-bucket-name: {{ "${{ vars.DEB_AWS_BUCKET_NAME }}" }}
-      deb-aws-bucket-region: {{ "${{ vars.DEB_AWS_DEFAULT_REGION }}" }}
+      tag: ${{ github.event.repository.default_branch != github.ref_name && format('{0}-{1}', needs.prepare.outputs.version, github.run_number) || '' }}
+      tag-target-commitish: ${{ github.sha }}
+      repository-environment: ${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}
+      deb-package-pattern: "((( name )))*.deb"
+      deb-component: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || format('{0}-releases', needs.prepare.outputs.version) }}
+      deb-codename: ${{ vars.DEB_CODENAME }}
+      deb-aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
+      deb-aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}

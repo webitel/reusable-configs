@@ -1,5 +1,9 @@
 definitions:
+  template/workflow: &template/workflow
+    version: v1.0.1
+
   template/webitel-wfm: &template/webitel-wfm
+    <<: *template/workflow
     name: webitel-wfm
     branch: main
     build:
@@ -43,11 +47,13 @@ group:
 
       - source: golang/workflows/backport-trigger.yml.njk
         dest: .github/workflows/backport-trigger.yml
-        template: true
+        template:
+          <<: *template/workflow
 
       - source: golang/workflows/backport.yml.njk
         dest: .github/workflows/backport.yml
-        template: true
+        template:
+          <<: *template/workflow
 
   - repos: |
       webitel/webitel-wfm

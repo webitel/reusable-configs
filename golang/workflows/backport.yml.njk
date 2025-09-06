@@ -1,12 +1,10 @@
-{% import "./_defaults.njk" as defs -%}
-
 # Runs the actual backport after being triggered by the backport-trigger.yml workflow.
 name: Backport (workflow)
-run-name: "Backport for {{ '${{ github.event.workflow_run.head_branch }}' }} #{{ '${{ github.event.workflow_run.run_number }}' }}"
+run-name: "((( name )))@${{ github.event.workflow_run.head_branch }} backport for  #${{ github.event.workflow_run.run_number }}"
 
 on:
   workflow_run:
-    workflows: ["Backport (trigger)"]
+    workflows: [ "Backport (trigger)" ]
     types: [ completed ]
 
 permissions: { contents: read }
@@ -14,7 +12,7 @@ permissions: { contents: read }
 jobs:
   backport:
     name: Backport
-    uses: webitel/reusable-workflows/.github/workflows/_backport.yml@{{ defs.workflow.version }}
+    uses: webitel/reusable-workflows/.github/workflows/_backport.yml@((( version )))
     permissions:
       id-token: write
       actions: read
