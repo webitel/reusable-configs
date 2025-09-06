@@ -1,5 +1,5 @@
 name: Workflow ( (((- name -))) )
-run-name: "((( name )))@${{ github.ref_name }}#${{ github.run_number }} - ${{ substr(replace(github.event.head_commit.message, '\n', ' '), 0, 50) }}"
+run-name: "((( name )))@${{ github.ref_name }}#${{ github.run_number }} - ${{ substr(github.event.head_commit.message), 0, 50) }}"
 
 on:
   push:
