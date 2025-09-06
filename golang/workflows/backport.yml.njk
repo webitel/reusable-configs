@@ -1,6 +1,6 @@
 # Runs the actual backport after being triggered by the backport-trigger.yml workflow.
 name: Backport (workflow)
-run-name: "((( name )))@${{ github.event.workflow_run.head_branch }} backport for  #${{ github.event.workflow_run.run_number }}"
+run-name: "backport@${{ github.event.workflow_run.head_branch }} backport for  #${{ github.event.workflow_run.run_number }}"
 
 on:
   workflow_run:

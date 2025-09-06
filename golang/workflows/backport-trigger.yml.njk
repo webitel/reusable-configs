@@ -2,7 +2,7 @@
 # So this workflow is used as a 'trigger', which the backport-workflow.yml will with
 # via workflow_run
 name: Backport (trigger)
-run-name: "((( name )))@pr${{ github.event.pull_request.number }}#${{ github.run_number }} - trigger backport workflow"
+run-name: "backport@pr${{ github.event.pull_request.number }}#${{ github.run_number }} - trigger backport workflow"
 
 on:
   pull_request:

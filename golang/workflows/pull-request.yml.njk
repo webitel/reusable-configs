@@ -1,4 +1,4 @@
-name: PR ( ((( name ))) )
+name: PR ( (((- name -))) )
 run-name: "((( name )))@pr${{ github.event.pull_request.number }}#${{ github.run_number }} - ${{ github.event.pull_request.title }}"
 
 on:
@@ -54,7 +54,7 @@ jobs:
     secrets:
       DEB_AWS_ACCESS_KEY_ID: ${{ secrets.DEB_AWS_ACCESS_KEY_ID }}
       DEB_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEB_AWS_SECRET_ACCESS_KEY }}
-      REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}" }}
+      REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}
       REPO_SIGNING_KEY_PASSPHRASE: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
 
     with:
