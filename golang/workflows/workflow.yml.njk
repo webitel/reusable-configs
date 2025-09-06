@@ -1,4 +1,4 @@
-name: Workflow (((( name ))))
+name: Workflow ( ((( name ))) )
 run-name: "((( name )))@${{ github.ref_name }}#${{ github.run_number }} - ${{ substr(replace(github.event.head_commit.message, '\n', ' '), 0, 50) }}"
 
 on:
