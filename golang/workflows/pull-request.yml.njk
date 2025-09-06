@@ -50,7 +50,7 @@ jobs:
 
   publish:
     name: Publish .deb package
-    needs: [ compile ]
+    needs: [ prepare, compile ]
     uses: webitel/reusable-workflows/.github/workflows/_publish-deb.yml@{{ defs.workflow.version }}
     secrets:
       DEB_AWS_ACCESS_KEY_ID: {{ "${{ secrets.DEB_AWS_ACCESS_KEY_ID }}" }}
