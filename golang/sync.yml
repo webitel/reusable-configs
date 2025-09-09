@@ -22,6 +22,15 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+webitel/webitel-wfm:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-wfm
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-wfm
+
 group:
   - repos: |
       webitel/webitel-wfm
@@ -54,15 +63,3 @@ group:
         dest: .github/workflows/backport.yml
         template:
           <<: *template/workflow
-
-  - repos: |
-      webitel/webitel-wfm
-
-    files:
-      - source: golang/workflows/workflow.yml.njk
-        dest: .github/workflows/workflow.yml
-        template: *template/webitel-wfm
-
-      - source: golang/workflows/pull-request.yml.njk
-        dest: .github/workflows/pull-request.yml
-        template: *template/webitel-wfm

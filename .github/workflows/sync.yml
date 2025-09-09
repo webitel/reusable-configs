@@ -12,16 +12,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4.3.0
 
+      - name: Create Github APP token
+        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1.0.0
+        id: app-token
+        with:
+          app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
+          private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
+
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v1.0.2
         with:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          IS_FINE_GRAINED: true
+          GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
+          GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
           CONFIG_PATH: golang/sync.yml
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: true
+          COMMIT_PREFIX: ""
+          ORIGINAL_MESSAGE: true
+          COMMIT_AS_PR_TITLE: true
           OVERWRITE_EXISTING_PR: true
           DRY_RUN: false
           NUNJUCKS_VARIABLE_START: "((("
           NUNJUCKS_VARIABLE_END: ")))"
-
