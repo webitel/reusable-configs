@@ -31,6 +31,10 @@ webitel/webitel-wfm:
     dest: .github/workflows/pull-request.yml
     template: *template/webitel-wfm
 
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-wfm
+
 group:
   - repos: |
       webitel/webitel-wfm
