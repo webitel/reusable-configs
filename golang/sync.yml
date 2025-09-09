@@ -1,6 +1,6 @@
 definitions:
   template/workflow: &template/workflow
-    version: v1.0.3
+    version: v1.0.4
 
   template/webitel-wfm: &template/webitel-wfm
     <<: *template/workflow
