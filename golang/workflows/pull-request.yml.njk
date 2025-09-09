@@ -46,22 +46,3 @@ jobs:
 
       scripts: |
         ((( build["scripts"] | safe | indent(8) )))
-
-  publish:
-    name: Publish .deb package
-    needs: [ prepare, compile ]
-    uses: webitel/reusable-workflows/.github/workflows/_publish-deb.yml@((( version )))
-    secrets:
-      DEB_AWS_ACCESS_KEY_ID: ${{ secrets.DEB_AWS_ACCESS_KEY_ID }}
-      DEB_AWS_SECRET_ACCESS_KEY: ${{ secrets.DEB_AWS_SECRET_ACCESS_KEY }}
-      REPO_SIGNING_KEY: ${{ secrets.REPO_SIGNING_KEY }}
-      REPO_SIGNING_KEY_PASSPHRASE: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
-
-    with:
-      deb-package-pattern: "((( name )))*.deb"
-      deb-component: dev
-      deb-codename: ${{ vars.DEB_CODENAME }}
-      deb-aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
-      deb-aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
-
-
