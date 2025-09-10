@@ -67,3 +67,6 @@ group:
         dest: .github/workflows/backport.yml
         template:
           <<: *template/workflow
+
+      - source: golang/workflows/dependabot-auto-merge.yml
+        dest: .github/workflows/dependabot-auto-merge.yml
