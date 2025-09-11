@@ -21,6 +21,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: |
             webitel-wfm
+            cases
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v1.0.2

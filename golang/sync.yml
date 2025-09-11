@@ -22,6 +22,24 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+  template/webitel-cases: &template/webitel-cases
+    <<: *template/workflow
+    name: webitel-cases
+    branch: main
+    build:
+      binary-name: webitel-cases
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=example.env dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
 webitel/webitel-wfm:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -35,9 +53,23 @@ webitel/webitel-wfm:
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webitel-wfm
 
+webitel/cases:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-cases
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-cases
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-cases
+
 group:
   - repos: |
       webitel/webitel-wfm
+      webitel/cases
 
     files:
       - source: golang/.idea
