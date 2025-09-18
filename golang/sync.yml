@@ -40,6 +40,23 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+  template/media-exporter: &template/media-exporter
+    <<: *template/workflow
+    name: webitel-media-exporter
+    branch: main
+    build:
+      binary-name: webitel-media-exporter
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
 webitel/webitel-wfm:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -66,10 +83,24 @@ webitel/cases:
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webitel-cases
 
+webitel/media-exporter:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/media-exporter
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/media-exporter
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/media-exporter
+
 group:
   - repos: |
       webitel/webitel-wfm
       webitel/cases
+      webitel/media-exporter
 
     files:
       - source: golang/.idea
