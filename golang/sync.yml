@@ -2,6 +2,151 @@ definitions:
   template/workflow: &template/workflow
     version: v1.0.5
 
+  template/call_audit: &template/call_audit
+    <<: *template/workflow
+    name: webitel-call-audit
+    branch: main
+    build:
+      binary-name: webitel-call-audit
+      ldflags: |
+        -s -w
+
+  template/call_center: &template/call_center
+    <<: *template/workflow
+    name: webitel-call-center
+    branch: master
+    build:
+      binary-name: call_center
+      ldflags: |
+        -s -w
+        -X github.com/webitel/call_center/model.BuildNumber=${{ github.run_number }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
+
+  template/cases: &template/cases
+    <<: *template/workflow
+    name: webitel-cases
+    branch: main
+    build:
+      binary-name: webitel-cases
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=example.env dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
+  template/chat_manager: &template/chat_manager
+    <<: *template/workflow
+    name: webitel-messages
+    branch: main
+    build:
+      binary-name: messages
+      ldflags: |
+        -s -w
+        -X github.com/webitel/chat_manager/cmd.GitTag=${{ github.ref_name }}
+        -X github.com/webitel/chat_manager/cmd.GitCommit=${{ github.sha }}
+        -X github.com/webitel/chat_manager/cmd.BuildDate=${{ github.event.head_commit.timestamp }}
+
+      package-contents: |
+        src=scripts/systemd/messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
+        src=scripts/systemd/messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
+        src=bot/telegram/gotd/public/ dst=/var/lib/webitel/public-html
+
+  template/engine: &template/engine
+    <<: *template/workflow
+    name: webitel-engine
+    branch: main
+    build:
+      binary-name: engine
+      ldflags: |
+        -s -w
+        -X github.com/webitel/engine/model.BuildNumber=${{ github.run_number }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
+  template/flow_manager: &template/flow_manager
+    <<: *template/workflow
+    name: webitel-flow-manager
+    branch: main
+    build:
+      binary-name: flow_manager
+      ldflags: |
+        -s -w
+        -X github.com/webitel/flow_manager/model.BuildNumber=${{ github.run_number }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+  template/logger: &template/logger
+    <<: *template/workflow
+    name: webitel-logger
+    branch: main
+    build:
+      binary-name: webitel-logger
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+  template/media-exporter: &template/media-exporter
+    <<: *template/workflow
+    name: webitel-media-exporter
+    branch: main
+    build:
+      binary-name: webitel-media-exporter
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
+  template/storage: &template/storage
+    <<: *template/workflow
+    name: webitel-storage
+    branch: main
+    build:
+      binary-name: storage
+      ldflags: |
+        -s -w
+        -X github.com/webitel/storage/model.BuildNumber=${{ github.run_number }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+  template/webitel-fts: &template/webitel-fts
+    <<: *template/workflow
+    name: webitel-fts
+    branch: main
+    build:
+      binary-name: webitel-fts
+      ldflags: |
+        -s -w
+        -X github.com/webitel/webitel-fts/cmd.Build=${{ github.run_number }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
+
   template/webitel-wfm: &template/webitel-wfm
     <<: *template/workflow
     name: webitel-wfm
@@ -22,66 +167,115 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
-  template/webitel-cases: &template/webitel-cases
+  template/webrtc_recorder: &template/webrtc_recorder
     <<: *template/workflow
-    name: webitel-cases
+    name: webitel-webrtc-rec
     branch: main
     build:
-      binary-name: webitel-cases
+      binary-name: webitel-webrtc-rec
       ldflags: |
         -s -w
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=example.env dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
+        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
 
+      package-depends: ffmpeg
       scripts: |
         preinstall: deploy/debian/preinst.sh
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
-  template/media-exporter: &template/media-exporter
-    <<: *template/workflow
-    name: webitel-media-exporter
-    branch: main
-    build:
-      binary-name: webitel-media-exporter
-      ldflags: |
-        -s -w
-
-      package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
-
-webitel/webitel-wfm:
+webitel/call_audit:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
-    template: *template/webitel-wfm
+    template: *template/call_audit
 
   - source: golang/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
-    template: *template/webitel-wfm
+    template: *template/call_audit
 
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
-    template: *template/webitel-wfm
+    template: *template/call_audit
+
+webitel/call_center:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/call_center
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/call_center
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/call_center
 
 webitel/cases:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
-    template: *template/webitel-cases
+    template: *template/cases
 
   - source: golang/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
-    template: *template/webitel-cases
+    template: *template/cases
 
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
-    template: *template/webitel-cases
+    template: *template/cases
+
+webitel/chat_manager:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/chat_manager
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/chat_manager
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/chat_manager
+
+webitel/engine:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/engine
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/engine
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/engine
+
+webitel/flow_manager:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/flow_manager
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/flow_manager
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/flow_manager
+
+webitel/logger:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/logger
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/logger
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/logger
 
 webitel/media-exporter:
   - source: golang/workflows/workflow.yml.njk
@@ -96,11 +290,73 @@ webitel/media-exporter:
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/media-exporter
 
+webitel/storage:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/storage
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/storage
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/storage
+
+webitel/webitel-fts:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-fts
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-fts
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-fts
+
+webitel/webitel-wfm:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-wfm
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-wfm
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-wfm
+
+webitel/webrtc_recorder:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webrtc_recorder
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webrtc_recorder
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webrtc_recorder
+
 group:
   - repos: |
-      webitel/webitel-wfm
+      webitel/call_audit
+      webitel/call_center
       webitel/cases
+      webitel/chat_manager
+      webitel/engine
+      webitel/flow_manager
+      webitel/logger
       webitel/media-exporter
+      webitel/storage
+      webitel/webitel-fts
+      webitel/webitel-wfm
+      webitel/webitel.go
+      webitel/webrtc_recorder
 
     files:
       - source: golang/.idea

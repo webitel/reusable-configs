@@ -44,6 +44,7 @@ jobs:
       package-contents: |
         ((( build["package-contents"] | safe | indent(8) )))
 
+      package-depends: ((( build["package-depends"] )))
       scripts: |
         ((( build["scripts"] | safe | indent(8) )))
 

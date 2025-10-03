@@ -20,9 +20,18 @@ jobs:
           private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           owner: ${{ github.repository_owner }}
           repositories: |
-            webitel-wfm
+            call_audit
+            call_center
             cases
+            chat_manager
+            engine
+            logger
             media-exporter
+            storage
+            webitel-fts
+            webitel-wfm
+            webitel.go
+            webrtc_recorder
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v1.0.2
