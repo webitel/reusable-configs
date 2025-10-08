@@ -1,4 +1,4 @@
-name: Sync files
+name: Sync
 on:
   push:
     branches: [ main ]
@@ -7,13 +7,16 @@ on:
 
 jobs:
   sync:
+    name: Files (${{ matrix.type }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        configs:
-          - golang/sync.yml
-          - golang/sync-static.yml
+        include:
+          - path: golang/sync.yml
+            type: dynamic
+          - path: golang/sync-static.yml
+            type: static
 
     steps:
       - name: Checkout Repository
@@ -47,7 +50,7 @@ jobs:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
           GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
-          CONFIG_PATH: ${{ matrix.configs }}
+          CONFIG_PATH: ${{ matrix.path }}
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: false
           COMMIT_PREFIX: ""
@@ -55,5 +58,6 @@ jobs:
           COMMIT_AS_PR_TITLE: true
           OVERWRITE_EXISTING_PR: true
           DRY_RUN: false
+          BRANCH_PREFIX: repo-sync/${{ matrix.type }}
           NUNJUCKS_VARIABLE_START: "((("
           NUNJUCKS_VARIABLE_END: ")))"
