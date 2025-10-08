@@ -8,6 +8,13 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        configs:
+          - golang/sync.yml
+          - golang/sync-static.yml
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4.3.0
@@ -25,6 +32,7 @@ jobs:
             cases
             chat_manager
             engine
+            flow_manager
             logger
             media-exporter
             storage
@@ -39,9 +47,9 @@ jobs:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
           GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
-          CONFIG_PATH: golang/sync.yml
+          CONFIG_PATH: ${{ matrix.configs }}
           ASSIGNEES: kirychukyurii
-          COMMIT_EACH_FILE: true
+          COMMIT_EACH_FILE: false
           COMMIT_PREFIX: ""
           ORIGINAL_MESSAGE: true
           COMMIT_AS_PR_TITLE: true

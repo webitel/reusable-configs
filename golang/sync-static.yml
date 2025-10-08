@@ -1,0 +1,51 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v1.0.5
+
+group:
+  - repos: |
+      webitel/call_audit
+      webitel/call_center
+      webitel/cases
+      webitel/chat_manager
+      webitel/engine
+      webitel/flow_manager
+      webitel/logger
+      webitel/media-exporter
+      webitel/storage
+      webitel/webitel-fts
+      webitel/webitel-wfm
+      webitel/webitel.go
+      webitel/webrtc_recorder
+
+    files:
+      - source: golang/.idea
+        dest: .idea
+
+      - source: golang/.vscode
+        dest: .vscode
+
+      - source: golang/configs/.editorconfig
+        dest: .editorconfig
+
+      - source: golang/configs/dependabot.yml
+        dest: .github/dependabot.yml
+
+      - source: golang/configs/.golangci.yaml
+        dest: .golangci.yaml
+
+      - source: golang/configs/.env.otel.example
+        dest: .env.otel.example
+
+      - source: golang/workflows/backport-trigger.yml.njk
+        dest: .github/workflows/backport-trigger.yml
+        template:
+          <<: *template/workflow
+
+      - source: golang/workflows/backport.yml.njk
+        dest: .github/workflows/backport.yml
+        template:
+          <<: *template/workflow
+
+      - source: golang/workflows/dependabot-auto-merge.yml
+        dest: .github/workflows/dependabot-auto-merge.yml
