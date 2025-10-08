@@ -51,6 +51,7 @@ jobs:
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
           GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
           CONFIG_PATH: ${{ matrix.path }}
+          PR_LABELS: sync,${{ matrix.type }}
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: false
           COMMIT_PREFIX: ""
