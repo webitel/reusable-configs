@@ -23,7 +23,6 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
 
   template/cases: &template/cases
     <<: *template/workflow
