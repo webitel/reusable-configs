@@ -50,6 +50,7 @@ jobs:
 
   deploy:
     name: Deploy
+    if: ! github.event.repository.private
     needs: [ prepare, compile ]
     uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@((( version )))
     permissions: { contents: write }
