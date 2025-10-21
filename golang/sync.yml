@@ -167,6 +167,26 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+  template/webitel.go: &template/webitel.go
+    <<: *template/workflow
+    name: webitel-core
+    branch: main
+    build:
+      binary-name: webitel
+      ldflags: |
+        -s -w
+        -X webitel.go/cmd.GitTag=${{ github.ref_name }}
+        -X webitel.go/cmd.GitCommit=${{ github.sha }}
+        -X webitel.go/cmd.BuildDate=${{ github.event.head_commit.timestamp }}
+
+      package-contents: |
+        src=deploy/systemd/webitel-app.service dst=/etc/systemd/system/webitel-app.service type=config
+        src=deploy/systemd/webitel-api.service dst=/etc/systemd/system/webitel-api.service type=config
+        src=deploy/systemd/webitel-uac.service dst=/etc/systemd/system/webitel-uac.service type=config
+        src=deploy/systemd/webitel-portal.service dst=/etc/systemd/system/webitel-portal.service type=config
+        src=.env.example dst=/etc/default/webitel type=config
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+
   template/webrtc_recorder: &template/webrtc_recorder
     <<: *template/workflow
     name: webitel-webrtc-rec
@@ -328,6 +348,15 @@ webitel/webitel-wfm:
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webitel-wfm
+
+webitel/webitel.go:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel.go
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel.go
 
 webitel/webrtc_recorder:
   - source: golang/workflows/workflow.yml.njk
