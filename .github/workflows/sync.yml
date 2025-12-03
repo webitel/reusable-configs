@@ -43,6 +43,7 @@ jobs:
             webitel-wfm
             webitel.go
             webrtc_recorder
+            web-meeting-backend
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v1.0.2

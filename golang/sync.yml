@@ -205,6 +205,24 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+  template/web-meeting-backend: &template/web-meeting-backend
+    <<: *template/workflow
+    name: webitel-meetings
+    branch: main
+    build:
+      binary-name: webitel-meetings
+      ldflags: |
+        -s -w
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
 webitel/call_audit:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -369,3 +387,16 @@ webitel/webrtc_recorder:
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webrtc_recorder
+
+webitel/web-meeting-backend:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/web-meeting-backend
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/web-meeting-backend
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/web-meeting-backend

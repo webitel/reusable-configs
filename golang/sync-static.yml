@@ -17,6 +17,7 @@ group:
       webitel/webitel-wfm
       webitel/webitel.go
       webitel/webrtc_recorder
+      webitel/web-meeting-backend
 
     files:
       - source: golang/.idea
