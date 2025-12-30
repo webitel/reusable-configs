@@ -11,6 +11,7 @@ group:
       webitel/engine
       webitel/flow_manager
       webitel/im-contact-service
+      webitel/im-thread-service
       webitel/logger
       webitel/media-exporter
       webitel/storage

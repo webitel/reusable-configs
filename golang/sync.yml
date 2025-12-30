@@ -110,6 +110,26 @@ definitions:
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
 
+  template/im-thread-service: &template/im-thread-service
+    <<: *template/workflow
+    name: webitel-im-thread
+    branch: main
+    build:
+      binary-name: webitel-im-thread
+      ldflags: |
+        -s -w
+        -X github.com/webitel/im-thread-service/internal/domain/model.Commit=${{ github.sha }}
+        -X github.com/webitel/im-thread-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+        -X github.com/webitel/im-thread-service/internal/domain/model.Branch=${{ github.ref_name }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
   template/logger: &template/logger
     <<: *template/workflow
     name: webitel-logger
@@ -333,6 +353,19 @@ webitel/im-contact-service:
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-contact-service
+
+webitel/im-thread-service:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/im-thread-service
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/im-thread-service
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/im-thread-service
 
 webitel/logger:
   - source: golang/workflows/workflow.yml.njk

@@ -37,6 +37,7 @@ jobs:
             engine
             flow_manager
             im-contact-service
+            im-thread-service
             logger
             media-exporter
             storage
