@@ -10,6 +10,7 @@ group:
       webitel/chat_manager
       webitel/engine
       webitel/flow_manager
+      webitel/im-contact-service
       webitel/logger
       webitel/media-exporter
       webitel/storage

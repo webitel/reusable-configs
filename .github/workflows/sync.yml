@@ -36,6 +36,7 @@ jobs:
             chat_manager
             engine
             flow_manager
+            im-contact-service
             logger
             media-exporter
             storage
