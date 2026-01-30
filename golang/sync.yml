@@ -104,8 +104,6 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.otel.example dst=/etc/default/webitel-otel type=config
-        src=.env.example dst=/etc/default/webitel-im type=config
 
       scripts: |
         preinstall: deploy/debian/preinst.sh
@@ -126,8 +124,6 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.otel.example dst=/etc/default/webitel-otel type=config
-        src=.env.example dst=/etc/default/webitel-im type=config
 
       scripts: |
         preinstall: deploy/debian/preinst.sh
@@ -148,8 +144,6 @@ definitions:
 
         package-contents: |
           src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-          src=.env.otel.example dst=/etc/default/webitel-otel type=config
-          src=.env.example dst=/etc/default/webitel-im type=config
 
         scripts: |
           preinstall: deploy/debian/preinst.sh
@@ -170,8 +164,6 @@ definitions:
 
         package-contents: |
           src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-          src=.env.otel.example dst=/etc/default/webitel-otel type=config
-          src=.env.example dst=/etc/default/webitel-im type=config
 
         scripts: |
           preinstall: deploy/debian/preinst.sh
@@ -192,8 +184,6 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.otel.example dst=/etc/default/webitel-otel type=config
-        src=.env.example dst=/etc/default/webitel-im type=config
 
       scripts: |
         preinstall: deploy/debian/preinst.sh
