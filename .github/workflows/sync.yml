@@ -36,7 +36,10 @@ jobs:
             chat_manager
             engine
             flow_manager
+            im-account-service
             im-contact-service
+            im-delivery-service
+            im-gateway-service
             im-thread-service
             logger
             media-exporter

@@ -90,6 +90,28 @@ definitions:
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
 
+  template/im-account-service: &template/im-account-service
+    <<: *template/workflow
+    name: webitel-im-account
+    branch: main
+    build:
+      binary-name: webitel-im-account
+      ldflags: |
+        -s -w
+        -X github.com/webitel/im-account-service/internal/domain/model.Commit=${{ github.sha }}
+        -X github.com/webitel/im-account-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+        -X github.com/webitel/im-account-service/internal/domain/model.Branch=${{ github.ref_name }}
+
+      package-contents: |
+        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+        src=.env.example dst=/etc/default/webitel-im type=config
+
+      scripts: |
+        preinstall: deploy/debian/preinst.sh
+        postinstall: deploy/debian/postinst.sh
+        preremove: deploy/debian/prerm.sh
+
   template/im-contact-service: &template/im-contact-service
     <<: *template/workflow
     name: webitel-im-contact
@@ -104,11 +126,57 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+        src=.env.example dst=/etc/default/webitel-im type=config
 
       scripts: |
         preinstall: deploy/debian/preinst.sh
         postinstall: deploy/debian/postinst.sh
         preremove: deploy/debian/prerm.sh
+
+    template/im-delivery-service: &template/im-delivery-service
+      <<: *template/workflow
+      name: webitel-im-delivery
+      branch: main
+      build:
+        binary-name: webitel-im-delivery
+        ldflags: |
+          -s -w
+          -X github.com/webitel/im-delivery-service/internal/domain/model.Commit=${{ github.sha }}
+          -X github.com/webitel/im-delivery-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+          -X github.com/webitel/im-delivery-service/internal/domain/model.Branch=${{ github.ref_name }}
+
+        package-contents: |
+          src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+          src=.env.otel.example dst=/etc/default/webitel-otel type=config
+          src=.env.example dst=/etc/default/webitel-im type=config
+
+        scripts: |
+          preinstall: deploy/debian/preinst.sh
+          postinstall: deploy/debian/postinst.sh
+          preremove: deploy/debian/prerm.sh
+
+    template/im-gateway-service: &template/im-gateway-service
+      <<: *template/workflow
+      name: webitel-im-gateway
+      branch: main
+      build:
+        binary-name: webitel-im-gateway
+        ldflags: |
+          -s -w
+          -X github.com/webitel/im-gateway-service/internal/domain/model.Commit=${{ github.sha }}
+          -X github.com/webitel/im-gateway-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+          -X github.com/webitel/im-gateway-service/internal/domain/model.Branch=${{ github.ref_name }}
+
+        package-contents: |
+          src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+          src=.env.otel.example dst=/etc/default/webitel-otel type=config
+          src=.env.example dst=/etc/default/webitel-im type=config
+
+        scripts: |
+          preinstall: deploy/debian/preinst.sh
+          postinstall: deploy/debian/postinst.sh
+          preremove: deploy/debian/prerm.sh
 
   template/im-thread-service: &template/im-thread-service
     <<: *template/workflow
@@ -124,6 +192,8 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+        src=.env.example dst=/etc/default/webitel-im type=config
 
       scripts: |
         preinstall: deploy/debian/preinst.sh
@@ -341,6 +411,19 @@ webitel/flow_manager:
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/flow_manager
 
+webitel/im-account-service:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/im-account-service
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/im-account-service
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/im-account-service
+
 webitel/im-contact-service:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -353,6 +436,32 @@ webitel/im-contact-service:
   - source: golang/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-contact-service
+
+webitel/im-delivery-service:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/im-delivery-service
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/im-delivery-service
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/im-delivery-service
+
+webitel/im-gateway-service:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/im-gateway-service
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/im-gateway-service
+
+  - source: golang/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/im-gateway-service
 
 webitel/im-thread-service:
   - source: golang/workflows/workflow.yml.njk
