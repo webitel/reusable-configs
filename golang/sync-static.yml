@@ -14,6 +14,7 @@ group:
       webitel/im-contact-service
       webitel/im-delivery-service
       webitel/im-gateway-service
+      webitel/im-providers-service
       webitel/im-thread-service
       webitel/logger
       webitel/media-exporter
