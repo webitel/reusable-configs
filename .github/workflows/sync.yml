@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.3.0
+        uses: actions/checkout@v6
 
       - name: Create Github APP token
-        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1.0.1
+        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
         id: app-token
         with:
           app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
@@ -52,7 +52,7 @@ jobs:
             web-meeting-backend
 
       - name: Sync files across repositories
-        uses: webitel/reusable-workflows/actions/file-sync@file-sync-v1.0.2
+        uses: webitel/reusable-workflows/actions/file-sync@file-sync-v2
         with:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
