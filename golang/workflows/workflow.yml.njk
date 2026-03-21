@@ -14,6 +14,10 @@ jobs:
   prepare:
     name: Prepare
     uses: webitel/reusable-workflows/.github/workflows/golang-prepare.yml@((( version )))
+    permissions:
+      contents: read
+      pull-requests: read
+
     with:
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.ref_name }}
@@ -27,8 +31,10 @@ jobs:
     permissions:
       contents: read
       actions: read
-      pull-requests: read
       security-events: write
+
+    with:
+      changes: ${{ needs.prepare.outputs.changes }}
 
   compile:
     name: Build
