@@ -75,7 +75,7 @@ jobs:
   publish:
     name: Publish
     needs: [ prepare, compile, deploy ]
-    if: always() && !cancelled() && needs.compile.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+    if: always() && !cancelled() && github.event.repository.private == false && needs.compile.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
     strategy:
       matrix:
         arch: ${{ fromJSON(needs.prepare.outputs.arch-matrix) }}
