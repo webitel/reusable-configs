@@ -44,15 +44,15 @@ group:
       - source: golang/configs/.env.otel.example
         dest: .env.otel.example
 
-      - source: golang/workflows/backport-trigger.yml.njk
+      - source: common/workflows/backport-trigger.yml.njk
         dest: .github/workflows/backport-trigger.yml
         template:
           <<: *template/workflow
 
-      - source: golang/workflows/backport.yml.njk
+      - source: common/workflows/backport.yml.njk
         dest: .github/workflows/backport.yml
         template:
           <<: *template/workflow
 
-      - source: golang/workflows/dependabot-auto-merge.yml
+      - source: common/workflows/dependabot-auto-merge.yml
         dest: .github/workflows/dependabot-auto-merge.yml

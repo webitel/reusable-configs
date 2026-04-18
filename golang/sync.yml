@@ -352,7 +352,7 @@ webitel/call_audit:
     dest: .github/workflows/pull-request.yml
     template: *template/call_audit
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/call_audit
 
@@ -365,7 +365,7 @@ webitel/call_center:
     dest: .github/workflows/pull-request.yml
     template: *template/call_center
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/call_center
 
@@ -378,7 +378,7 @@ webitel/cases:
     dest: .github/workflows/pull-request.yml
     template: *template/cases
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/cases
 
@@ -391,7 +391,7 @@ webitel/chat_manager:
     dest: .github/workflows/pull-request.yml
     template: *template/chat_manager
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/chat_manager
 
@@ -404,7 +404,7 @@ webitel/engine:
     dest: .github/workflows/pull-request.yml
     template: *template/engine
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/engine
 
@@ -417,7 +417,7 @@ webitel/flow_manager:
     dest: .github/workflows/pull-request.yml
     template: *template/flow_manager
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/flow_manager
 
@@ -430,7 +430,7 @@ webitel/im-account-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-account-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-account-service
 
@@ -443,7 +443,7 @@ webitel/im-contact-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-contact-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-contact-service
 
@@ -456,7 +456,7 @@ webitel/im-delivery-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-delivery-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-delivery-service
 
@@ -469,7 +469,7 @@ webitel/im-gateway-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-gateway-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-gateway-service
 
@@ -482,7 +482,7 @@ webitel/im-providers-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-providers-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-providers-service
 
@@ -495,7 +495,7 @@ webitel/im-thread-service:
     dest: .github/workflows/pull-request.yml
     template: *template/im-thread-service
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/im-thread-service
 
@@ -508,7 +508,7 @@ webitel/logger:
     dest: .github/workflows/pull-request.yml
     template: *template/logger
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/logger
 
@@ -521,7 +521,7 @@ webitel/media-exporter:
     dest: .github/workflows/pull-request.yml
     template: *template/media-exporter
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/media-exporter
 
@@ -534,7 +534,7 @@ webitel/storage:
     dest: .github/workflows/pull-request.yml
     template: *template/storage
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/storage
 
@@ -547,7 +547,7 @@ webitel/webitel-fts:
     dest: .github/workflows/pull-request.yml
     template: *template/webitel-fts
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webitel-fts
 
@@ -560,7 +560,7 @@ webitel/webitel-wfm:
     dest: .github/workflows/pull-request.yml
     template: *template/webitel-wfm
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webitel-wfm
 
@@ -582,7 +582,7 @@ webitel/webrtc_recorder:
     dest: .github/workflows/pull-request.yml
     template: *template/webrtc_recorder
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/webrtc_recorder
 
@@ -595,6 +595,6 @@ webitel/web-meeting-backend:
     dest: .github/workflows/pull-request.yml
     template: *template/web-meeting-backend
 
-  - source: golang/workflows/pull-request-deliver.yml.njk
+  - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/web-meeting-backend
