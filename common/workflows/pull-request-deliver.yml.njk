@@ -30,6 +30,7 @@ jobs:
       DELIVERY_BOT_APP_PEM: ${{ secrets.DELIVERY_BOT_APP_PEM }}
 
     with:
+      arch: ((( build.arch | default("amd64") )))
       deb-package-pattern: "((( name )))*.deb"
       deb-component: dev
       deb-codename: ${{ vars.DEB_CODENAME }}
