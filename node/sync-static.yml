@@ -4,7 +4,7 @@ definitions:
 
 group:
   - repos: |
-      webite/client
+      webitel/client
       webitel/web-meeting
 
     files:
