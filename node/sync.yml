@@ -2,6 +2,14 @@ definitions:
   template/workflow: &template/workflow
     version: v2
 
+  template/client: &template/client
+    <<: *template/workflow
+    name: webitel-admin-app
+    branch: main
+    build:
+      arch: all
+      app-root: /opt/www/admin
+
   template/web-meeting: &template/web-meeting
     <<: *template/workflow
     name: webitel-meetings-app
@@ -9,6 +17,19 @@ definitions:
     build:
       arch: all
       app-root: /opt/www/meetings
+
+webitel/client:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/client
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/client
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/client
 
 webitel/web-meeting:
   - source: node/workflows/workflow.yml.njk

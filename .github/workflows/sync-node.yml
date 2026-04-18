@@ -34,4 +34,5 @@ jobs:
       config-path: ${{ matrix.config-path }}
       sync-type: ${{ matrix.sync-type }}
       repositories: |
+        client
         web-meeting
