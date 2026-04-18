@@ -9,8 +9,6 @@ definitions:
     build:
       arch: all
       app-root: /opt/www/meetings
-      package-contents: |
-        src=public/config.example.jsonc dst=/opt/www/meetings/config.example.jsonc type=config
 
 webitel/web-meeting:
   - source: node/workflows/workflow.yml.njk
