@@ -4,7 +4,7 @@ definitions:
 
   template/web-meeting: &template/web-meeting
     <<: *template/workflow
-    name: web-meeting
+    name: webitel-meetings-app
     branch: main
     build:
       arch: all
