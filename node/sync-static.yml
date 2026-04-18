@@ -1,0 +1,24 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v2
+
+group:
+  - repos: |
+      webitel/web-meeting
+
+    files:
+      - source: node/configs/dependabot.yml
+        dest: .github/dependabot.yml
+
+      - source: common/workflows/backport-trigger.yml.njk
+        dest: .github/workflows/backport-trigger.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/backport.yml.njk
+        dest: .github/workflows/backport.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/dependabot-auto-merge.yml
+        dest: .github/workflows/dependabot-auto-merge.yml
