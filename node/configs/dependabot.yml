@@ -23,7 +23,6 @@ updates:
         patterns: [ "*" ]
         update-types: [ minor, patch ]
 
-    enable-beta-ecosystems: false
     commit-message:
       prefix: deps
       prefix-development: deps-dev
