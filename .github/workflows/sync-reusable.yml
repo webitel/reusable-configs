@@ -1,22 +1,22 @@
-name: Sync
-on:
-  push:
-    branches: [ main ]
+name: Sync Reusable
 
-  workflow_dispatch:
+on:
+  workflow_call:
+    inputs:
+      config-path:
+        required: true
+        type: string
+      sync-type:
+        required: true
+        type: string
+      repositories:
+        required: true
+        type: string
 
 jobs:
   sync:
-    name: Files (${{ matrix.type }})
+    name: Files (${{ inputs.sync-type }})
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - path: golang/sync.yml
-            type: dynamic
-          - path: golang/sync-static.yml
-            type: static
 
     steps:
       - name: Checkout Repository
@@ -29,27 +29,7 @@ jobs:
           app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
           private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           owner: ${{ github.repository_owner }}
-          repositories: |
-            call_audit
-            call_center
-            cases
-            chat_manager
-            engine
-            flow_manager
-            im-account-service
-            im-contact-service
-            im-delivery-service
-            im-gateway-service
-            im-providers-service
-            im-thread-service
-            logger
-            media-exporter
-            storage
-            webitel-fts
-            webitel-wfm
-            webitel.go
-            webrtc_recorder
-            web-meeting-backend
+          repositories: ${{ inputs.repositories }}
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v2
@@ -57,8 +37,8 @@ jobs:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
           GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
-          CONFIG_PATH: ${{ matrix.path }}
-          PR_LABELS: sync,${{ matrix.type }}
+          CONFIG_PATH: ${{ inputs.config-path }}
+          PR_LABELS: sync,${{ inputs.sync-type }}
           ASSIGNEES: kirychukyurii
           COMMIT_EACH_FILE: false
           COMMIT_PREFIX: ""
@@ -66,6 +46,6 @@ jobs:
           COMMIT_AS_PR_TITLE: true
           OVERWRITE_EXISTING_PR: true
           DRY_RUN: false
-          BRANCH_PREFIX: repo-sync/${{ matrix.type }}
+          BRANCH_PREFIX: repo-sync/${{ inputs.sync-type }}
           NUNJUCKS_VARIABLE_START: "((("
           NUNJUCKS_VARIABLE_END: ")))"

@@ -1,0 +1,37 @@
+name: Sync Node
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - common/**
+      - node/**
+      - .github/workflows/sync-node.yml
+      - .github/workflows/sync-reusable.yml
+
+  workflow_dispatch:
+
+concurrency:
+  group: sync-node-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Sync
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config-path: node/sync.yml
+            sync-type: dynamic
+
+          - config-path: node/sync-static.yml
+            sync-type: static
+
+    uses: ./.github/workflows/sync-reusable.yml
+    secrets: inherit
+    with:
+      config-path: ${{ matrix.config-path }}
+      sync-type: ${{ matrix.sync-type }}
+      repositories: |
+        web-meeting
