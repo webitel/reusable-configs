@@ -26,6 +26,9 @@ group:
       webitel/web-meeting-backend
 
     files:
+      - source: golang/configs/.gitignore
+        dest: .gitignore
+
       - source: golang/.idea
         dest: .idea
 
