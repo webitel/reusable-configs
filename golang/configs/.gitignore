@@ -24,7 +24,7 @@ secrets.json
 
 # Editor junk
 .idea/*
-!.idea/runConfigurations/*
+!.idea/runConfigurations/
 *.iml
 .vscode/*
 !.vscode/launch.json
