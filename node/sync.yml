@@ -16,15 +16,21 @@ definitions:
 
   template/crm: &template/crm
     <<: *template/workflow
-    name: webitel-crm
+    name: webitel-crm-app
     build:
       app-root: /opt/www/crm
+      package-conflicts: webitel-crm
+      package-replaces: webitel-crm
+      package-provides: webitel-crm
 
   template/cc-history: &template/cc-history
     <<: *template/workflow
-    name: webitel-history
+    name: webitel-history-app
     build:
       app-root: /opt/www/history
+      package-conflicts: webitel-history
+      package-replaces: webitel-history
+      package-provides: webitel-history
 
   template/web-client-auth: &template/web-client-auth
     <<: *template/workflow
@@ -34,9 +40,12 @@ definitions:
 
   template/cc-supervisor: &template/cc-supervisor
     <<: *template/workflow
-    name: webitel-supervisor-workspace
+    name: webitel-supervisor-workspace-app
     build:
       app-root: /opt/www/supervisor
+      package-conflicts: webitel-supervisor-workspace
+      package-replaces: webitel-supervisor-workspace
+      package-provides: webitel-supervisor-workspace
 
   template/cc-quality-auditor: &template/cc-quality-auditor
     <<: *template/workflow
@@ -46,9 +55,12 @@ definitions:
 
   template/omnichannel-widget: &template/omnichannel-widget
     <<: *template/workflow
-    name: webitel-web-widget
+    name: webitel-web-widget-app
     build:
       app-root: /opt/www/omni-widget
+      package-conflicts: webitel-web-widget
+      package-replaces: webitel-web-widget
+      package-provides: webitel-web-widget
 
   template/wfm-app: &template/wfm-app
     <<: *template/workflow
@@ -58,15 +70,21 @@ definitions:
 
   template/webitel-flow-diagram: &template/webitel-flow-diagram
     <<: *template/workflow
-    name: webitel-flow-diagram
+    name: webitel-flow-diagram-app
     build:
       app-root: /opt/www/flow-diagram
+      package-conflicts: webitel-flow-diagram
+      package-replaces: webitel-flow-diagram
+      package-provides: webitel-flow-diagram
 
   template/cc-workspaces: &template/cc-workspaces
     <<: *template/workflow
-    name: webitel-agent-workspace
+    name: webitel-agent-workspace-app
     build:
       app-root: /opt/www/workspaces
+      package-conflicts: webitel-agent-workspace
+      package-replaces: webitel-agent-workspace
+      package-provides: webitel-agent-workspace
 
 webitel/client:
   - source: node/workflows/workflow.yml.njk
