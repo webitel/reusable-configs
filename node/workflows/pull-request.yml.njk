@@ -52,5 +52,8 @@ jobs:
         ((( build["package-contents"] | safe | indent(8) )))
 
       package-depends: ((( build["package-depends"] )))
+      package-conflicts: ((( build["package-conflicts"] )))
+      package-replaces: ((( build["package-replaces"] )))
+      package-provides: ((( build["package-provides"] )))
       scripts: |
         ((( build["scripts"] | safe | indent(8) )))

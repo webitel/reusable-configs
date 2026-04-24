@@ -36,3 +36,12 @@ jobs:
       repositories: |
         client
         web-meeting
+        crm
+        cc-history
+        web-client-auth
+        cc-supervisor
+        cc-quality-auditor
+        omnichannel-widget
+        wfm-app
+        webitel-flow-diagram
+        cc-workspaces

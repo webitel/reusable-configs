@@ -6,10 +6,25 @@ group:
   - repos: |
       webitel/client
       webitel/web-meeting
+      webitel/crm
+      webitel/cc-history
+      webitel/web-client-auth
+      webitel/cc-supervisor
+      webitel/cc-quality-auditor
+      webitel/omnichannel-widget
+      webitel/wfm-app
+      webitel/webitel-flow-diagram
+      webitel/cc-workspaces
 
     files:
       - source: node/configs/dependabot.yml
         dest: .github/dependabot.yml
+
+      - source: node/workflows/libs.update.yml
+        dest: .github/workflows/libs.update.yml
+
+      - source: node/workflows/make-release.yml
+        dest: .github/workflows/make-release.yml
 
       - source: common/workflows/backport-trigger.yml.njk
         dest: .github/workflows/backport-trigger.yml
@@ -21,5 +36,6 @@ group:
         template:
           <<: *template/workflow
 
-      - source: common/workflows/dependabot-auto-merge.yml
-        dest: .github/workflows/dependabot-auto-merge.yml
+# TODO: add later
+#      - source: common/workflows/dependabot-auto-merge.yml
+#        dest: .github/workflows/dependabot-auto-merge.yml

@@ -5,18 +5,68 @@ definitions:
   template/client: &template/client
     <<: *template/workflow
     name: webitel-admin-app
-    branch: main
     build:
-      arch: all
       app-root: /opt/www/admin
 
   template/web-meeting: &template/web-meeting
     <<: *template/workflow
     name: webitel-meetings-app
-    branch: main
     build:
-      arch: all
       app-root: /opt/www/meetings
+
+  template/crm: &template/crm
+    <<: *template/workflow
+    name: webitel-crm
+    build:
+      app-root: /opt/www/crm
+
+  template/cc-history: &template/cc-history
+    <<: *template/workflow
+    name: webitel-history
+    build:
+      app-root: /opt/www/history
+
+  template/web-client-auth: &template/web-client-auth
+    <<: *template/workflow
+    name: webitel-auth-app
+    build:
+      app-root: /opt/www/auth
+
+  template/cc-supervisor: &template/cc-supervisor
+    <<: *template/workflow
+    name: webitel-supervisor-workspace
+    build:
+      app-root: /opt/www/supervisor
+
+  template/cc-quality-auditor: &template/cc-quality-auditor
+    <<: *template/workflow
+    name: webitel-audit-app
+    build:
+      app-root: /opt/www/audit
+
+  template/omnichannel-widget: &template/omnichannel-widget
+    <<: *template/workflow
+    name: webitel-web-widget
+    build:
+      app-root: /opt/www/omni-widget
+
+  template/wfm-app: &template/wfm-app
+    <<: *template/workflow
+    name: webitel-wfm-app
+    build:
+      app-root: /opt/www/wfm
+
+  template/webitel-flow-diagram: &template/webitel-flow-diagram
+    <<: *template/workflow
+    name: webitel-flow-diagram
+    build:
+      app-root: /opt/www/flow-diagram
+
+  template/cc-workspaces: &template/cc-workspaces
+    <<: *template/workflow
+    name: webitel-agent-workspace
+    build:
+      app-root: /opt/www/workspaces
 
 webitel/client:
   - source: node/workflows/workflow.yml.njk
@@ -43,3 +93,120 @@ webitel/web-meeting:
   - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/web-meeting
+
+webitel/crm:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/crm
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/crm
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/crm
+
+webitel/cc-history:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/cc-history
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/cc-history
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/cc-history
+
+webitel/web-client-auth:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/web-client-auth
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/web-client-auth
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/web-client-auth
+
+webitel/cc-supervisor:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/cc-supervisor
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/cc-supervisor
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/cc-supervisor
+
+webitel/cc-quality-auditor:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/cc-quality-auditor
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/cc-quality-auditor
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/cc-quality-auditor
+
+webitel/omnichannel-widget:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/omnichannel-widget
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/omnichannel-widget
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/omnichannel-widget
+
+webitel/wfm-app:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/wfm-app
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/wfm-app
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/wfm-app
+
+webitel/webitel-flow-diagram:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-flow-diagram
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-flow-diagram
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-flow-diagram
+
+webitel/cc-workspaces:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/cc-workspaces
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/cc-workspaces
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/cc-workspaces
