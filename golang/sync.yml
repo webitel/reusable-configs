@@ -249,6 +249,7 @@ definitions:
         -s -w
         -X github.com/webitel/storage/model.BuildNumber=${{ github.run_number }}
 
+      package-depends: ffmpeg
       package-contents: |
         src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
 
