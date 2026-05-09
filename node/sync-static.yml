@@ -36,6 +36,11 @@ group:
         template:
           <<: *template/workflow
 
+      - source: common/workflows/cleanup-artifacts.yml.njk
+        dest: .github/workflows/cleanup-artifacts.yml
+        template:
+          <<: *template/workflow
+
 # TODO: add later
 #      - source: common/workflows/dependabot-auto-merge.yml
 #        dest: .github/workflows/dependabot-auto-merge.yml
