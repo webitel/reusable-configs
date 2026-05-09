@@ -24,6 +24,10 @@ jobs:
   version:
     name: Version
     uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
+    permissions:
+      contents: read
+      id-token: write
+
     with:
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.ref_name }}
