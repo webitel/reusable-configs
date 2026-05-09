@@ -5,8 +5,8 @@ run-name: "trigger public workflow from parent/${{ github.event.workflow.name }}
 on:
   workflow_run:
     workflows:
-      - "Workflow (extension / (((- name -))) )"
-      - "Workflow (migrations / (((- name -))) )"
+      - "Workflow (extension / ((( name -))) )"
+      - "Workflow (migrations / ((( name -))) )"
 
     types: [ completed ]
 
@@ -64,7 +64,7 @@ jobs:
         id: resolve
         run: |
           case "${{ github.event.workflow.name }}" in
-            "Workflow (extension / ((( name ))) )")
+            "Workflow (extension / ((( name -))) )")
               {
                 printf 'package-label=extension\n'
                 printf 'arch-matrix=%s\n' '${{ needs.version.outputs.arch-matrix }}'
@@ -73,7 +73,7 @@ jobs:
               } >> "${GITHUB_OUTPUT}"
               ;;
 
-            "Workflow (migrations / ((( name ))) )")
+            "Workflow (migrations / ((( name -))) )")
               {
                 printf 'package-label=migrations\n'
                 printf 'arch-matrix=["all"]\n'
@@ -121,8 +121,8 @@ jobs:
       - name: Dispatch public workflow
         uses: webitel/reusable-workflows/actions/dispatch-public@dispatch-public-v1
         with:
-          workflow-name: Workflow ( (((- name -))) )
-          repository-name: ((( publicRepo )))
+          workflow-name: Workflow ( ((( name -))) )
+          repository-name: ((( public-repo )))
           github-app-client-id: ${{ vars.DELIVERY_BOT_CLIENT_ID }}
           github-app-private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           dispatch-inputs: >

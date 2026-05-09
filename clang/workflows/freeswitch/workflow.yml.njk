@@ -58,12 +58,7 @@ jobs:
         ((( build["scripts"] | default("postinstall: deploy/debian/postinst.sh") | safe | indent(8) )))
 
       args: |
-        {%- if build["args"] %}
         ((( build["args"] | safe | indent(8) )))
-        {%- endif %}
-        -DFREESWITCH_INCLUDE_DIR=/usr/include/freeswitch \
-        -DINSTALL_MOD_DIR=/usr/local/freeswitch/mod \
-        -DCMAKE_BUILD_TYPE=Release
 
   deploy:
     name: Deploy

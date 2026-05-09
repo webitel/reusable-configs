@@ -1,4 +1,4 @@
-name: Workflow (extension / (((- name -))) )
+name: Workflow (extension / ((( name -))) )
 run-name: "${{ github.event.repository.name }}@${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message }}"
 
 on:
@@ -105,10 +105,4 @@ jobs:
         ((( extension["package-contents"] | safe | indent(8) )))
 
       args: |
-        {%- if extension["args"] %}
         ((( extension["args"] | safe | indent(8) )))
-        {%- endif %}
-        -DPostgreSQL_TYPE_INCLUDE_DIR=${{ needs.postgres-version.outputs.includedir-server }} \
-        -DCC_BUILD_VERSION="${{ needs.metadata.outputs.build-version }}" \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DINSTALL_MOD_DIR=${{ needs.postgres-version.outputs.pkglibdir }}
