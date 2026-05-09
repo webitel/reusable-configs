@@ -40,7 +40,7 @@ definitions:
     <<: *template/workflow
     name: freeswitch-mod-google-transcribe
     branch: main
-    public-repo: freeswitch-mod-google-transcribe-public
+    public: freeswitch-mod-google-transcribe-public
     build:
       mod-name: mod_google_transcribe
       args: |
@@ -52,7 +52,7 @@ definitions:
     <<: *template/workflow
     name: pg-wbt-cc
     branch: main
-    public-repo: postgresql-extension-wbt-cc-public
+    public: postgresql-extension-wbt-cc-public
     extension:
       package-name-prefix: webitel-postgresql
       package-depends-prefix: postgresql

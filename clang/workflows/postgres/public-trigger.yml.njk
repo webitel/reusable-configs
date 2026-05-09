@@ -122,7 +122,7 @@ jobs:
         uses: webitel/reusable-workflows/actions/dispatch-public@dispatch-public-v1
         with:
           workflow-name: Workflow ( (((- name -))) )
-          repository-name: ((( "public-repo" )))
+          repository-name: ((( public )))
           github-app-client-id: ${{ vars.DELIVERY_BOT_CLIENT_ID }}
           github-app-private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           dispatch-inputs: >
