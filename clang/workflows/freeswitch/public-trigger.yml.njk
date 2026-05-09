@@ -1,0 +1,90 @@
+name: Trigger public workflows
+
+run-name: "trigger public workflow from parent/${{ github.event.workflow.name }}#${{ github.event.workflow_run.run_number }} on ${{ github.event.workflow_run.head_branch }}#${{ github.run_number }}"
+
+on:
+  workflow_run:
+    workflows: [ "Workflow ( (((- name -))) )" ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow.name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  metadata:
+    name: Metadata
+    runs-on: [ arc-runner-set ]
+    outputs:
+      commit-message: ${{ steps.msg.outputs.first-line }}
+
+    steps:
+      - name: Extract first line of commit message
+        id: msg
+        env:
+          MSG: ${{ github.event.workflow_run.head_commit.message }}
+
+        run: |
+          printf 'first-line=%s\n' "${MSG%%$'\n'*}" >> "$GITHUB_OUTPUT"
+
+  version:
+    name: Version
+    uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
+    with:
+      development-branch: ${{ github.event.repository.default_branch }}
+      triggered-branch: ${{ github.event.workflow_run.head_branch }}
+      arch: ${{ vars.BUILD_ARCH }}
+      codename: ${{ vars.DEB_CODENAME }}
+
+  check:
+    name: Check (${{ matrix.arch }})
+    runs-on: [ arc-runner-set ]
+    needs: [ version ]
+    strategy:
+      matrix:
+        arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
+
+    steps:
+      - name: Create Github APP token
+        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
+        id: app-token
+        with:
+          client-id: ${{ vars.DELIVERY_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        continue-on-error: false
+        with:
+          name: build-packages-${{ matrix.arch }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ steps.app-token.outputs.token }}
+
+  dispatch:
+    name: Dispatch / ${{ github.event.workflow.name }}
+    runs-on: [ arc-runner-set ]
+    needs: [ metadata, version, check ]
+
+    steps:
+      - name: Dispatch main workflow
+        if: ${{ github.event.workflow.name == 'Workflow ( (((- name -))) )' }}
+        uses: webitel/reusable-workflows/actions/dispatch-public@dispatch-public-v1
+        with:
+          workflow-name: Workflow ( (((- name -))) )
+          repository-name: ((( publicRepo )))
+          github-app-client-id: ${{ vars.DELIVERY_BOT_CLIENT_ID }}
+          github-app-private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
+          dispatch-inputs: >
+            {
+              "commit-message": "${{ needs.metadata.outputs.commit-message }}",
+              "triggered-branch": "${{ github.event.workflow_run.head_branch }}",
+              "artifact-actions-run-id": "${{ github.event.workflow_run.id }}",
+              "arch-matrix": ${{ toJSON(needs.version.outputs.arch-matrix) }},
+              "codename-matrix": ${{ toJSON(needs.version.outputs.codename-matrix) }},
+              "repository-environment": "${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance' || format('{0}-releases', needs.version.outputs.version) }}",
+              "deb-component": "${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'dev' || format('{0}-releases', needs.version.outputs.version) }}",
+              "version": "${{ needs.version.outputs.version }}"
+            }

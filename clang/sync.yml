@@ -1,0 +1,95 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v2
+
+  template/freeswitch-mod-amd: &template/freeswitch-mod-amd
+    <<: *template/workflow
+    name: freeswitch-mod-amd
+    branch: main
+    build:
+      mod-name: mod_amd
+
+  template/freeswitch-mod-amqp: &template/freeswitch-mod-amqp
+    <<: *template/workflow
+    name: freeswitch-mod-amqp
+    branch: main
+    build:
+      mod-name: mod_amqp
+
+  template/freeswitch-mod-grpc: &template/freeswitch-mod-grpc
+    <<: *template/workflow
+    name: freeswitch-mod-grpc
+    branch: main
+    build:
+      mod-name: mod_grpc
+      args: |
+        -DMOD_BUILD_VERSION="${{ github.run_number }}, commit: ${{ github.sha }}/${{ github.ref_name }}" \
+
+  template/freeswitch-mod-google-transcribe: &template/freeswitch-mod-google-transcribe
+    <<: *template/workflow
+    name: freeswitch-mod-google-transcribe
+    branch: main
+    publicRepo: freeswitch-mod-google-transcribe-public
+    build:
+      mod-name: mod_google_transcribe
+
+  template/postgresql-extension-wbt-cc: &template/postgresql-extension-wbt-cc
+    <<: *template/workflow
+    name: pg-wbt-cc
+    branch: main
+    publicRepo: postgresql-extension-wbt-cc-public
+    extension:
+      package-name-prefix: webitel-postgresql
+      package-depends-prefix: postgresql
+      sql-pattern: cc_sql--*.sql
+      package-contents: |
+        src=build/cc_sql.so dst=/usr/lib/postgresql/${{ needs.postgres-version.outputs.major }}/lib/cc_sql.so type=file mode=0644
+        src=cc_sql.control dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql.control type=file mode=0644
+        src=cc_sql--1.0.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.0.sql type=file mode=0644
+        src=cc_sql--1.0--1.1.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.0--1.1.sql type=file mode=0644
+        src=cc_sql--1.1--1.2.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.1--1.2.sql type=file mode=0644
+        src=cc_sql--1.2--1.1.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.2--1.1.sql type=file mode=0644
+        src=cc_sql--1.2--1.3.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.2--1.3.sql type=file mode=0644
+        src=cc_sql--1.3--1.2.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.3--1.2.sql type=file mode=0644
+
+    migrations:
+      package-name: webitel-postgresql-migrations
+      package-description: Webitel PostgreSQL migrations
+      src-dir: webitel
+
+webitel/freeswitch-mod-amd:
+  - source: clang/workflows/freeswitch/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/freeswitch-mod-amd
+
+webitel/freeswitch-mod-amqp:
+  - source: clang/workflows/freeswitch/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/freeswitch-mod-amqp
+
+webitel/freeswitch-mod-grpc:
+  - source: clang/workflows/freeswitch/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/freeswitch-mod-grpc
+
+webitel/freeswitch-mod-google-transcribe:
+  - source: clang/workflows/freeswitch/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/freeswitch-mod-google-transcribe
+
+  - source: clang/workflows/freeswitch/public-trigger.yml.njk
+    dest: .github/workflows/public-trigger.yml
+    template: *template/freeswitch-mod-google-transcribe
+
+webitel/postgresql-extension-wbt-cc:
+  - source: clang/workflows/postgres/extension.yml.njk
+    dest: .github/workflows/extension.yml
+    template: *template/postgresql-extension-wbt-cc
+
+  - source: clang/workflows/postgres/migrations.yml.njk
+    dest: .github/workflows/migrations.yml
+    template: *template/postgresql-extension-wbt-cc
+
+  - source: clang/workflows/postgres/public-trigger.yml.njk
+    dest: .github/workflows/public-trigger.yml
+    template: *template/postgresql-extension-wbt-cc

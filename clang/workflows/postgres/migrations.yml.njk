@@ -1,0 +1,90 @@
+name: Workflow (migrations / (((- name -))) )
+run-name: "${{ github.event.repository.name }}@${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message }}"
+
+on:
+  push:
+    branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
+    paths:
+      - "((( migrations["src-dir"] | default("webitel") )))/**"
+      - ".github/workflows/migrations.yml"
+      - ".github/workflows/public-trigger.yml"
+      - ".github/actionlint.yaml"
+
+permissions: { contents: read }
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Version
+    uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
+    with:
+      development-branch: ${{ github.event.repository.default_branch }}
+      triggered-branch: ${{ github.ref_name }}
+      arch: ${{ vars.BUILD_ARCH }}
+      codename: ${{ vars.DEB_CODENAME }}
+
+  postgres-version:
+    name: PostgreSQL version
+    runs-on: [ arc-c-runner-set ]
+    outputs:
+      version: ${{ steps.pg.outputs.version }}
+      major: ${{ steps.pg.outputs.major }}
+
+    steps:
+      - name: Get PostgreSQL build paths
+        id: pg
+        run: |
+          PG_VERSION="$(pg_config --version)"
+          PG_MAJOR="$(printf '%s\n' "${PG_VERSION}" | sed -E 's/^PostgreSQL ([0-9]+).*/\1/')"
+
+          case "${PG_MAJOR}" in
+            ''|*[!0-9]*)
+              echo "Unable to parse PostgreSQL major version from: ${PG_VERSION}" >&2
+              exit 1
+              ;;
+          esac
+
+          {
+            printf 'version=%s\n' "${PG_VERSION}"
+            printf 'major=%s\n' "${PG_MAJOR}"
+          } >> "${GITHUB_OUTPUT}"
+
+  build:
+    name: Migrations package
+    runs-on: [ arc-runner-set ]
+    needs: [ version, postgres-version ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Build package
+        uses: webitel/reusable-workflows/actions/nfpm-build@nfpm-build-v2
+        with:
+          nfpm-version: latest
+          formats: deb
+          target: dist
+          maintainer: Webitel <support@webitel.com>
+          homepage: https://webitel.com
+          arch: all
+          platform: linux
+          package-name: ((( migrations["package-name"] )))
+          package-description: ((( migrations["package-description"] | default("Webitel PostgreSQL migrations") )))
+          version: ${{ needs.version.outputs.version }}
+          release: ${{ github.run_number }}
+          prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+          version-metadata: postgresql${{ needs.postgres-version.outputs.major }}
+          contents: |
+            src=((( migrations["src-dir"] | default("webitel") ))) dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/((( migrations["src-dir"] | default("webitel") ))) type=tree mode=0644
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-packages-all
+          retention-days: 7
+          compression-level: 9
+          path: dist

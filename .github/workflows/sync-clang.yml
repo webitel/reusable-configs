@@ -1,0 +1,41 @@
+name: Sync Clang
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - common/**
+      - clang/**
+      - .github/workflows/sync-clang.yml
+      - .github/workflows/sync-reusable.yml
+
+  workflow_dispatch:
+
+concurrency:
+  group: sync-clang-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Sync
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config-path: clang/sync.yml
+            sync-type: dynamic
+
+          - config-path: clang/sync-static.yml
+            sync-type: static
+
+    uses: ./.github/workflows/sync-reusable.yml
+    secrets: inherit
+    with:
+      config-path: ${{ matrix.config-path }}
+      sync-type: ${{ matrix.sync-type }}
+      repositories: |
+        freeswitch-mod-amd
+        freeswitch-mod-amqp
+        freeswitch-mod-grpc
+        freeswitch-mod-google-transcribe
+        postgresql-extension-wbt-cc

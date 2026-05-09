@@ -1,0 +1,110 @@
+name: Workflow (extension / (((- name -))) )
+run-name: "${{ github.event.repository.name }}@${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message }}"
+
+on:
+  push:
+    branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
+    paths:
+      - "CMakeLists.txt"
+      - "Makefile"
+      - "*.c"
+      - "*.h"
+      - "*.control"
+      - "((( extension["sql-pattern"] | default("*.sql") )))"
+      - ".github/workflows/extension.yml"
+      - ".github/workflows/public-trigger.yml"
+      - ".github/actionlint.yaml"
+
+permissions: { contents: read }
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Version
+    uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
+    with:
+      development-branch: ${{ github.event.repository.default_branch }}
+      triggered-branch: ${{ github.ref_name }}
+      arch: ${{ vars.BUILD_ARCH }}
+      codename: ${{ vars.DEB_CODENAME }}
+
+  postgres-version:
+    name: PostgreSQL version
+    runs-on: [ arc-c-runner-set ]
+    outputs:
+      version: ${{ steps.pg.outputs.version }}
+      major: ${{ steps.pg.outputs.major }}
+      includedir-server: ${{ steps.pg.outputs.includedir-server }}
+      pkglibdir: ${{ steps.pg.outputs.pkglibdir }}
+
+    steps:
+      - name: Get PostgreSQL build paths
+        id: pg
+        run: |
+          PG_VERSION="$(pg_config --version)"
+          PG_MAJOR="$(printf '%s\n' "${PG_VERSION}" | sed -E 's/^PostgreSQL ([0-9]+).*/\1/')"
+          PG_INCLUDEDIR_SERVER="$(pg_config --includedir-server)"
+          PG_PKGLIBDIR="$(pg_config --pkglibdir)"
+
+          case "${PG_MAJOR}" in
+            ''|*[!0-9]*)
+              echo "Unable to parse PostgreSQL major version from: ${PG_VERSION}" >&2
+              exit 1
+              ;;
+          esac
+
+          {
+            printf 'version=%s\n' "${PG_VERSION}"
+            printf 'major=%s\n' "${PG_MAJOR}"
+            printf 'includedir-server=%s\n' "${PG_INCLUDEDIR_SERVER}"
+            printf 'pkglibdir=%s\n' "${PG_PKGLIBDIR}"
+          } >> "${GITHUB_OUTPUT}"
+
+  metadata:
+    name: Build metadata
+    runs-on: [ arc-runner-set ]
+    outputs:
+      build-version: ${{ steps.metadata.outputs.build-version }}
+
+    steps:
+      - name: Build version string
+        id: metadata
+        run: |
+          SHORT_SHA="${GITHUB_SHA::12}"
+          BUILD_DATE="$(date '+%Y/%m/%d %H:%M:%S')"
+          printf 'build-version=build: %s, commit: %s/%s, date: %s\n' \
+            "${GITHUB_RUN_NUMBER}" \
+            "${SHORT_SHA}" \
+            "${GITHUB_REF_NAME}" \
+            "${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
+
+  compile:
+    name: Build
+    needs: [ version, postgres-version, metadata ]
+    strategy:
+      matrix:
+        arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
+
+    uses: webitel/reusable-workflows/.github/workflows/clang-build.yml@((( version )))
+    with:
+      arch: ${{ matrix.arch }}
+      version: ${{ needs.version.outputs.version }}
+      version-build: ${{ github.run_number }}
+      version-metadata: postgresql${{ needs.postgres-version.outputs.major }}
+      prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+      package-name: ((( extension["package-name-prefix"] )))-${{ needs.postgres-version.outputs.major }}
+      package-description: ${{ github.event.repository.description }}
+      package-depends: ((( extension["package-depends-prefix"] | default("postgresql") )))-${{ needs.postgres-version.outputs.major }}
+      package-contents: |
+        ((( extension["package-contents"] | safe | indent(8) )))
+
+      args: |
+        {%- if extension["args"] %}
+        ((( extension["args"] | safe | indent(8) )))
+        {%- endif %}
+        -DPostgreSQL_TYPE_INCLUDE_DIR=${{ needs.postgres-version.outputs.includedir-server }} \
+        -DCC_BUILD_VERSION="${{ needs.metadata.outputs.build-version }}" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DINSTALL_MOD_DIR=${{ needs.postgres-version.outputs.pkglibdir }}

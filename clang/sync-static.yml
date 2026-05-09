@@ -1,0 +1,27 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v2
+
+group:
+  - repos: |
+      webitel/freeswitch-mod-amd
+      webitel/freeswitch-mod-amqp
+      webitel/freeswitch-mod-grpc
+      webitel/freeswitch-mod-google-transcribe
+      webitel/postgresql-extension-wbt-cc
+
+    files:
+      - source: common/workflows/backport-trigger.yml.njk
+        dest: .github/workflows/backport-trigger.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/backport.yml.njk
+        dest: .github/workflows/backport.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/cleanup-artifacts.yml.njk
+        dest: .github/workflows/cleanup-artifacts.yml
+        template:
+          <<: *template/workflow
