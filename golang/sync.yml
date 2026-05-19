@@ -14,9 +14,9 @@ definitions:
   template/call_center: &template/call_center
     <<: *template/workflow
     name: webitel-call-center
-    branch: master
+    branch: main
     build:
-      binary-name: call_center
+      binary-name: webitel-call-center
       ldflags: |
         -s -w
         -X github.com/webitel/call_center/model.BuildNumber=${{ github.run_number }}
