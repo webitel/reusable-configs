@@ -2,6 +2,14 @@ definitions:
   template/workflow: &template/workflow
     version: v2
 
+  # Generic Debian maintainer scripts, synced verbatim from
+  # golang/deploy/debian/ via sync-static.yml. preinst is intentionally
+  # absent (the scripts manage every shipped unit at runtime).
+  deb/scripts: &deb/scripts |
+    postinstall: deploy/debian/postinst.sh
+    preremove: deploy/debian/prerm.sh
+    postremove: deploy/debian/postrm.sh
+
   template/call_audit: &template/call_audit
     <<: *template/workflow
     name: webitel-call-audit
@@ -22,7 +30,9 @@ definitions:
         -X github.com/webitel/call_center/model.BuildNumber=${{ github.run_number }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-call-center.service dst=/etc/systemd/system/webitel-call-center.service type=config
+
+      scripts: *deb/scripts
 
   template/cases: &template/cases
     <<: *template/workflow
@@ -34,13 +44,10 @@ definitions:
         -s -w
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=example.env dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
+        src=deploy/systemd/webitel-cases.service dst=/etc/systemd/system/webitel-cases.service type=config
+        src=example.env dst=/etc/default/webitel-cases type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/chat_manager: &template/chat_manager
     <<: *template/workflow
@@ -59,6 +66,8 @@ definitions:
         src=scripts/systemd/messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
         src=bot/telegram/gotd/public/ dst=/var/lib/webitel/public-html
 
+      scripts: *deb/scripts
+
   template/engine: &template/engine
     <<: *template/workflow
     name: webitel-engine
@@ -70,12 +79,9 @@ definitions:
         -X github.com/webitel/engine/model.BuildNumber=${{ github.run_number }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-engine.service dst=/etc/systemd/system/webitel-engine.service type=config
         
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/flow_manager: &template/flow_manager
     <<: *template/workflow
@@ -88,7 +94,9 @@ definitions:
         -X github.com/webitel/flow_manager/model.BuildNumber=${{ github.run_number }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-flow-manager.service dst=/etc/systemd/system/webitel-flow-manager.service type=config
+
+      scripts: *deb/scripts
 
   template/im-account-service: &template/im-account-service
     <<: *template/workflow
@@ -103,12 +111,9 @@ definitions:
         -X github.com/webitel/im-account-service/internal/domain/model.Branch=${{ github.ref_name }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-im-account.service dst=/etc/systemd/system/webitel-im-account.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/im-contact-service: &template/im-contact-service
     <<: *template/workflow
@@ -123,52 +128,43 @@ definitions:
         -X github.com/webitel/im-contact-service/internal/domain/model.Branch=${{ github.ref_name }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-im-contact.service dst=/etc/systemd/system/webitel-im-contact.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
-    template/im-delivery-service: &template/im-delivery-service
-      <<: *template/workflow
-      name: webitel-im-delivery
-      branch: main
-      build:
-        binary-name: webitel-im-delivery
-        ldflags: |
-          -s -w
-          -X github.com/webitel/im-delivery-service/internal/domain/model.Commit=${{ github.sha }}
-          -X github.com/webitel/im-delivery-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
-          -X github.com/webitel/im-delivery-service/internal/domain/model.Branch=${{ github.ref_name }}
+  template/im-delivery-service: &template/im-delivery-service
+    <<: *template/workflow
+    name: webitel-im-delivery
+    branch: main
+    build:
+      binary-name: webitel-im-delivery
+      ldflags: |
+        -s -w
+        -X github.com/webitel/im-delivery-service/internal/domain/model.Commit=${{ github.sha }}
+        -X github.com/webitel/im-delivery-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+        -X github.com/webitel/im-delivery-service/internal/domain/model.Branch=${{ github.ref_name }}
 
-        package-contents: |
-          src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+      package-contents: |
+        src=deploy/systemd/webitel-im-delivery.service dst=/etc/systemd/system/webitel-im-delivery.service type=config
 
-        scripts: |
-          preinstall: deploy/debian/preinst.sh
-          postinstall: deploy/debian/postinst.sh
-          preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
-    template/im-gateway-service: &template/im-gateway-service
-      <<: *template/workflow
-      name: webitel-im-gateway
-      branch: main
-      build:
-        binary-name: webitel-im-gateway
-        ldflags: |
-          -s -w
-          -X github.com/webitel/im-gateway-service/internal/domain/model.Commit=${{ github.sha }}
-          -X github.com/webitel/im-gateway-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
-          -X github.com/webitel/im-gateway-service/internal/domain/model.Branch=${{ github.ref_name }}
+  template/im-gateway-service: &template/im-gateway-service
+    <<: *template/workflow
+    name: webitel-im-gateway
+    branch: main
+    build:
+      binary-name: webitel-im-gateway
+      ldflags: |
+        -s -w
+        -X github.com/webitel/im-gateway-service/internal/domain/model.Commit=${{ github.sha }}
+        -X github.com/webitel/im-gateway-service/internal/domain/model.CommitDate=${{ github.event.head_commit.timestamp }}
+        -X github.com/webitel/im-gateway-service/internal/domain/model.Branch=${{ github.ref_name }}
 
-        package-contents: |
-          src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+      package-contents: |
+        src=deploy/systemd/webitel-im-gateway.service dst=/etc/systemd/system/webitel-im-gateway.service type=config
 
-        scripts: |
-          preinstall: deploy/debian/preinst.sh
-          postinstall: deploy/debian/postinst.sh
-          preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/im-providers-service: &template/im-providers-service
     <<: *template/workflow
@@ -183,12 +179,9 @@ definitions:
         -X github.com/webitel/im-providers-service/internal/domain/model.Branch=${{ github.ref_name }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-im-providers.service dst=/etc/systemd/system/webitel-im-providers.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/im-thread-service: &template/im-thread-service
     <<: *template/workflow
@@ -203,12 +196,9 @@ definitions:
         -X github.com/webitel/im-thread-service/internal/domain/model.Branch=${{ github.ref_name }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-im-thread.service dst=/etc/systemd/system/webitel-im-thread.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/logger: &template/logger
     <<: *template/workflow
@@ -220,7 +210,9 @@ definitions:
         -s -w
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-logger.service dst=/etc/systemd/system/webitel-logger.service type=config
+
+      scripts: *deb/scripts
 
   template/media-exporter: &template/media-exporter
     <<: *template/workflow
@@ -232,12 +224,9 @@ definitions:
         -s -w
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-media-exporter.service dst=/etc/systemd/system/webitel-media-exporter.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/storage: &template/storage
     <<: *template/workflow
@@ -251,12 +240,10 @@ definitions:
 
       package-depends: ffmpeg
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-storage.service dst=/etc/systemd/system/webitel-storage.service type=config
+        src=deploy/debian/postinst.d/ dst=/usr/lib/webitel-storage/deb/postinst.d/
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/webitel-fts: &template/webitel-fts
     <<: *template/workflow
@@ -269,8 +256,10 @@ definitions:
         -X github.com/webitel/webitel-fts/cmd.Build=${{ github.run_number }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
+        src=deploy/systemd/webitel-fts.service dst=/etc/systemd/system/webitel-fts.service type=config
+        src=.env.example dst=/etc/default/webitel-fts.env type=config
+
+      scripts: *deb/scripts
 
   template/webitel-wfm: &template/webitel-wfm
     <<: *template/workflow
@@ -285,12 +274,9 @@ definitions:
         -X github.com/webitel/webitel-wfm/cmd.branch=${{ github.ref_name }}
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
+        src=deploy/systemd/webitel-wfm.service dst=/etc/systemd/system/webitel-wfm.service type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/webitel.go: &template/webitel.go
     <<: *template/workflow
@@ -312,6 +298,8 @@ definitions:
         src=.env.example dst=/etc/default/webitel type=config
         src=.env.otel.example dst=/etc/default/webitel-otel type=config
 
+      scripts: *deb/scripts
+
   template/webrtc_recorder: &template/webrtc_recorder
     <<: *template/workflow
     name: webitel-webrtc-rec
@@ -322,14 +310,11 @@ definitions:
         -s -w
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }}.env type=config
+        src=deploy/systemd/webitel-webrtc-rec.service dst=/etc/systemd/system/webitel-webrtc-rec.service type=config
+        src=.env.example dst=/etc/default/webitel-webrtc-rec.env type=config
 
       package-depends: ffmpeg
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
   template/web-meeting-backend: &template/web-meeting-backend
     <<: *template/workflow
@@ -341,13 +326,10 @@ definitions:
         -s -w
 
       package-contents: |
-        src=deploy/systemd/${{ vars.SERVICE_NAME }}.service dst=/etc/systemd/system/${{ vars.SERVICE_NAME }}.service type=config
-        src=.env.example dst=/etc/default/${{ vars.SERVICE_NAME }} type=config
+        src=deploy/systemd/webitel-meetings.service dst=/etc/systemd/system/webitel-meetings.service type=config
+        src=.env.example dst=/etc/default/webitel-meetings type=config
 
-      scripts: |
-        preinstall: deploy/debian/preinst.sh
-        postinstall: deploy/debian/postinst.sh
-        preremove: deploy/debian/prerm.sh
+      scripts: *deb/scripts
 
 webitel/call_audit:
   - source: golang/workflows/workflow.yml.njk

@@ -47,6 +47,16 @@ group:
       - source: golang/configs/.env.otel.example
         dest: .env.otel.example
 
+      # Generic Debian maintainer scripts (service-agnostic, multi-unit aware).
+      - source: golang/deploy/debian/postinst.sh
+        dest: deploy/debian/postinst.sh
+
+      - source: golang/deploy/debian/prerm.sh
+        dest: deploy/debian/prerm.sh
+
+      - source: golang/deploy/debian/postrm.sh
+        dest: deploy/debian/postrm.sh
+
       - source: common/workflows/backport-trigger.yml.njk
         dest: .github/workflows/backport-trigger.yml
         template:
