@@ -31,6 +31,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-call-center.service dst=/etc/systemd/system/webitel-call-center.service type=config
+        src=.env.example dst=/etc/default/webitel-call-center type=config
 
       scripts: *deb/scripts
 
@@ -65,6 +66,7 @@ definitions:
         src=scripts/systemd/messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
         src=scripts/systemd/messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
         src=bot/telegram/gotd/public/ dst=/var/lib/webitel/public-html
+        src=.env.example dst=/etc/default/webitel-messages type=config
 
       scripts: *deb/scripts
 
@@ -211,6 +213,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-logger.service dst=/etc/systemd/system/webitel-logger.service type=config
+        src=.env.example dst=/etc/default/webitel-logger type=config
 
       scripts: *deb/scripts
 
@@ -242,6 +245,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-storage.service dst=/etc/systemd/system/webitel-storage.service type=config
         src=deploy/debian/postinst.d/ dst=/usr/lib/webitel-storage/deb/postinst.d/
+        src=.env.example dst=/etc/default/webitel-storage type=config
 
       scripts: *deb/scripts
 
