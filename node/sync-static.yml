@@ -15,6 +15,7 @@ group:
       webitel/wfm-app
       webitel/webitel-flow-diagram
       webitel/cc-workspaces
+      webitel/agent-workspace-app
 
     files:
       - source: node/configs/dependabot.yml

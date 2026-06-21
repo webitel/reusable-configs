@@ -86,6 +86,12 @@ definitions:
       package-replaces: webitel-agent-workspace
       package-provides: webitel-agent-workspace
 
+  template/agent-workspace-app: &template/agent-workspace-app
+    <<: *template/workflow
+    name: webitel-agent-workspace-2-app
+    build:
+      app-root: /opt/www/workspaces-2
+
 webitel/client:
   - source: node/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -228,3 +234,16 @@ webitel/cc-workspaces:
   - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/cc-workspaces
+
+webitel/agent-workspace-app:
+  - source: node/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/agent-workspace-app
+
+  - source: node/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/agent-workspace-app
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/agent-workspace-app
