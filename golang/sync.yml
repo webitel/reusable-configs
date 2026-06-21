@@ -65,7 +65,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
         src=deploy/systemd/webitel-messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
-        src=bot/telegram/gotd/public/ dst=/var/lib/webitel/public-html
+        src=bot/telegram/gotd/public/ dst=/usr/share/webitel/webitel-messages-bot/public-html
         src=.env.bot.example dst=/etc/default/webitel-messages-bot type=config
         src=.env.app.example dst=/etc/default/webitel-messages-srv type=config
         src=.env.otel.example dst=/etc/default/webitel-otel type=config
@@ -101,6 +101,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-flow-manager.service dst=/etc/systemd/system/webitel-flow-manager.service type=config
+        src=message_templates/ dst=/usr/share/webitel/webitel-flow-manager/message-templates
         src=.env.example dst=/etc/default/webitel-flow-manager type=config
 
       scripts: *deb/scripts
@@ -267,6 +268,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-fts.service dst=/etc/systemd/system/webitel-fts.service type=config
+        src=mapping/ dst=/usr/share/webitel/webitel-fts/mapping
         src=.env.example dst=/etc/default/webitel-fts type=config
 
       scripts: *deb/scripts
