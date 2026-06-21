@@ -9,10 +9,11 @@ on:
         type: choice
         options:
           - '@webitel/ui-sdk'
+          - '@webitel/ui-chats'
+          - '@webitel/ui-datalist'
           - '@webitel/api-services'
           - '@webitel/flow-ui-sdk'
           - '@webitel/styleguide'
-          - '@webitel/ui-datalist'
 
 permissions:
   contents: write
