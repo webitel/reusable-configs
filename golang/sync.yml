@@ -63,10 +63,12 @@ definitions:
         -X github.com/webitel/chat_manager/cmd.BuildDate=${{ github.event.head_commit.timestamp }}
 
       package-contents: |
-        src=scripts/systemd/messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
-        src=scripts/systemd/messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
+        src=deploy/systemd/webitel-messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
+        src=deploy/systemd/webitel-messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
         src=bot/telegram/gotd/public/ dst=/var/lib/webitel/public-html
-        src=.env.example dst=/etc/default/webitel-messages type=config
+        src=.env.bot.example dst=/etc/default/webitel-messages-bot type=config
+        src=.env.app.example dst=/etc/default/webitel-messages-srv type=config
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config
 
       scripts: *deb/scripts
 
@@ -247,7 +249,7 @@ definitions:
       package-depends: ffmpeg
       package-contents: |
         src=deploy/systemd/webitel-storage.service dst=/etc/systemd/system/webitel-storage.service type=config
-        src=deploy/debian/postinst.d/ dst=/usr/lib/webitel-storage/deb/postinst.d/
+        src=deploy/debian/postinst.d/ dst=/usr/lib/webitel/webitel-storage/deb/postinst.d/
         src=.env.example dst=/etc/default/webitel-storage type=config
 
       scripts: *deb/scripts
@@ -302,7 +304,10 @@ definitions:
         src=deploy/systemd/webitel-api.service dst=/etc/systemd/system/webitel-api.service type=config
         src=deploy/systemd/webitel-uac.service dst=/etc/systemd/system/webitel-uac.service type=config
         src=deploy/systemd/webitel-portal.service dst=/etc/systemd/system/webitel-portal.service type=config
-        src=.env.example dst=/etc/default/webitel type=config
+        src=.env.app.example dst=/etc/default/webitel-app type=config
+        src=.env.api.example dst=/etc/default/webitel-api type=config
+        src=.env.uac.example dst=/etc/default/webitel-uac type=config
+        src=.env.portal.example dst=/etc/default/webitel-portal type=config
         src=.env.otel.example dst=/etc/default/webitel-otel type=config
 
       scripts: *deb/scripts
