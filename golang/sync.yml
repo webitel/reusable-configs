@@ -31,7 +31,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-call-center.service dst=/etc/systemd/system/webitel-call-center.service type=config
-        src=.env.example dst=/etc/default/webitel-call-center type=config
+        src=.env.example dst=/etc/default/webitel-call-center type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -46,7 +46,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-cases.service dst=/etc/systemd/system/webitel-cases.service type=config
-        src=.env.example dst=/etc/default/webitel-cases type=config
+        src=.env.example dst=/etc/default/webitel-cases type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -66,9 +66,9 @@ definitions:
         src=deploy/systemd/webitel-messages-bot.service dst=/etc/systemd/system/webitel-messages-bot.service type=config
         src=deploy/systemd/webitel-messages-srv.service dst=/etc/systemd/system/webitel-messages-srv.service type=config
         src=bot/telegram/gotd/public/ dst=/usr/share/webitel/webitel-messages-bot/public-html
-        src=.env.bot.example dst=/etc/default/webitel-messages-bot type=config
-        src=.env.app.example dst=/etc/default/webitel-messages-srv type=config
-        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+        src=.env.bot.example dst=/etc/default/webitel-messages-bot type=config mode=0640
+        src=.env.app.example dst=/etc/default/webitel-messages-srv type=config mode=0640
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -85,7 +85,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-engine.service dst=/etc/systemd/system/webitel-engine.service type=config
         src=deploy/debian/postinst.d/ dst=/usr/lib/webitel/webitel-engine/deb/postinst.d/
-        src=.env.example dst=/etc/default/webitel-engine type=config
+        src=.env.example dst=/etc/default/webitel-engine type=config mode=0640
         
       scripts: *deb/scripts
 
@@ -102,7 +102,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-flow-manager.service dst=/etc/systemd/system/webitel-flow-manager.service type=config
         src=message_templates/ dst=/usr/share/webitel/webitel-flow-manager/message-templates
-        src=.env.example dst=/etc/default/webitel-flow-manager type=config
+        src=.env.example dst=/etc/default/webitel-flow-manager type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -219,7 +219,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-logger.service dst=/etc/systemd/system/webitel-logger.service type=config
-        src=.env.example dst=/etc/default/webitel-logger type=config
+        src=.env.example dst=/etc/default/webitel-logger type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -234,7 +234,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-media-exporter.service dst=/etc/systemd/system/webitel-media-exporter.service type=config
-        src=.env.example dst=/etc/default/webitel-media-exporter type=config
+        src=.env.example dst=/etc/default/webitel-media-exporter type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -252,7 +252,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-storage.service dst=/etc/systemd/system/webitel-storage.service type=config
         src=deploy/debian/postinst.d/ dst=/usr/lib/webitel/webitel-storage/deb/postinst.d/
-        src=.env.example dst=/etc/default/webitel-storage type=config
+        src=.env.example dst=/etc/default/webitel-storage type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -269,7 +269,7 @@ definitions:
       package-contents: |
         src=deploy/systemd/webitel-fts.service dst=/etc/systemd/system/webitel-fts.service type=config
         src=mapping/ dst=/usr/share/webitel/webitel-fts/mapping
-        src=.env.example dst=/etc/default/webitel-fts type=config
+        src=.env.example dst=/etc/default/webitel-fts type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -308,11 +308,11 @@ definitions:
         src=deploy/systemd/webitel-uac.service dst=/etc/systemd/system/webitel-uac.service type=config
         src=deploy/systemd/webitel-portal.service dst=/etc/systemd/system/webitel-portal.service type=config
         src=provision/templates/ dst=/usr/share/webitel/webitel-app/provisioning
-        src=.env.app.example dst=/etc/default/webitel-app type=config
-        src=.env.api.example dst=/etc/default/webitel-api type=config
-        src=.env.uac.example dst=/etc/default/webitel-uac type=config
-        src=.env.portal.example dst=/etc/default/webitel-portal type=config
-        src=.env.otel.example dst=/etc/default/webitel-otel type=config
+        src=.env.app.example dst=/etc/default/webitel-app type=config mode=0640
+        src=.env.api.example dst=/etc/default/webitel-api type=config mode=0640
+        src=.env.uac.example dst=/etc/default/webitel-uac type=config mode=0640
+        src=.env.portal.example dst=/etc/default/webitel-portal type=config mode=0640
+        src=.env.otel.example dst=/etc/default/webitel-otel type=config mode=0640
 
       scripts: *deb/scripts
 
@@ -327,7 +327,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-webrtc-rec.service dst=/etc/systemd/system/webitel-webrtc-rec.service type=config
-        src=.env.example dst=/etc/default/webitel-webrtc-rec type=config
+        src=.env.example dst=/etc/default/webitel-webrtc-rec type=config mode=0640
 
       package-depends: ffmpeg
       scripts: *deb/scripts
@@ -343,7 +343,7 @@ definitions:
 
       package-contents: |
         src=deploy/systemd/webitel-meetings.service dst=/etc/systemd/system/webitel-meetings.service type=config
-        src=.env.example dst=/etc/default/webitel-meetings type=config
+        src=.env.example dst=/etc/default/webitel-meetings type=config mode=0640
 
       scripts: *deb/scripts
 
