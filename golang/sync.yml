@@ -307,6 +307,7 @@ definitions:
         src=deploy/systemd/webitel-api.service dst=/etc/systemd/system/webitel-api.service type=config
         src=deploy/systemd/webitel-uac.service dst=/etc/systemd/system/webitel-uac.service type=config
         src=deploy/systemd/webitel-portal.service dst=/etc/systemd/system/webitel-portal.service type=config
+        src=provision/templates/ dst=/usr/share/webitel/webitel-app/provisioning
         src=.env.app.example dst=/etc/default/webitel-app type=config
         src=.env.api.example dst=/etc/default/webitel-api type=config
         src=.env.uac.example dst=/etc/default/webitel-uac type=config
