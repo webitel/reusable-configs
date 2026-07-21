@@ -28,6 +28,7 @@ definitions:
       ldflags: |
         -s -w
         -X github.com/webitel/call_center/model.BuildNumber=${{ github.run_number }}
+        -X github.com/webitel/call_center/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-call-center.service dst=/etc/systemd/system/webitel-call-center.service type=config
@@ -43,6 +44,7 @@ definitions:
       binary-name: webitel-cases
       ldflags: |
         -s -w
+        -X github.com/webitel/cases/internal/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-cases.service dst=/etc/systemd/system/webitel-cases.service type=config
@@ -80,6 +82,7 @@ definitions:
       ldflags: |
         -s -w
         -X github.com/webitel/engine/model.BuildNumber=${{ github.run_number }}
+        -X github.com/webitel/engine/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-engine.service dst=/etc/systemd/system/webitel-engine.service type=config
@@ -97,6 +100,7 @@ definitions:
       ldflags: |
         -s -w
         -X github.com/webitel/flow_manager/model.BuildNumber=${{ github.run_number }}
+        -X github.com/webitel/flow_manager/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-flow-manager.service dst=/etc/systemd/system/webitel-flow-manager.service type=config
@@ -230,6 +234,7 @@ definitions:
       binary-name: webitel-media-exporter
       ldflags: |
         -s -w
+        -X github.com/webitel/media-exporter/internal/domain/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-media-exporter.service dst=/etc/systemd/system/webitel-media-exporter.service type=config
@@ -246,6 +251,7 @@ definitions:
       ldflags: |
         -s -w
         -X github.com/webitel/storage/model.BuildNumber=${{ github.run_number }}
+        -X github.com/webitel/storage/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-depends: ffmpeg
       package-contents: |
@@ -264,6 +270,7 @@ definitions:
       ldflags: |
         -s -w
         -X github.com/webitel/webitel-fts/cmd.Build=${{ github.run_number }}
+        -X github.com/webitel/webitel-fts/internal/model.CurrentVersion=${{ needs.prepare.outputs.version }}
 
       package-contents: |
         src=deploy/systemd/webitel-fts.service dst=/etc/systemd/system/webitel-fts.service type=config
