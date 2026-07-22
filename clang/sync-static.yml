@@ -25,3 +25,8 @@ group:
         dest: .github/workflows/cleanup-artifacts.yml
         template:
           <<: *template/workflow
+
+      - source: clang/workflows/release-branch.yml.njk
+        dest: .github/workflows/release-branch.yml
+        template:
+          <<: *template/workflow

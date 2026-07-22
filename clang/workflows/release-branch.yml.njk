@@ -1,0 +1,34 @@
+name: Release branch
+
+# Listens for the org-wide release event dispatched from webitel/.github and creates
+# the release branch in this repository.
+on:
+  repository_dispatch:
+    types: [ create-release-branch ]   # client_payload: { version }
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release branch name, e.g. v26.04"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: create-release-branch-${{ github.event.client_payload.version || inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  create:
+    name: Create
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release branch
+        uses: peterjgrainger/action-create-branch@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        with:
+          branch: ${{ github.event.client_payload.version || inputs.version }}
