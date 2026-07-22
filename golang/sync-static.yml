@@ -74,3 +74,6 @@ group:
         dest: .github/workflows/cleanup-artifacts.yml
         template:
           <<: *template/workflow
+
+      - source: golang/workflows/release-branch.yml
+        dest: .github/workflows/release-branch.yml
