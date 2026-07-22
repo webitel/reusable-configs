@@ -25,10 +25,17 @@ jobs:
     name: Create
     runs-on: ubuntu-latest
     steps:
+      - name: Create GitHub App token
+        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
+        id: app-token
+        with:
+          app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
+          private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
+
       - name: Create release branch
         uses: peterjgrainger/action-create-branch@v3.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        
         with:
           branch: ${{ github.event.client_payload.version || inputs.version }}
