@@ -50,6 +50,7 @@ jobs:
         media-exporter
         storage
         webitel-fts
+        webitel-kb
         webitel-wfm
         webitel.go
         webrtc_recorder
