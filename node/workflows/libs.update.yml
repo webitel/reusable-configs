@@ -12,7 +12,6 @@ on:
           - '@webitel/ui-chats'
           - '@webitel/ui-datalist'
           - '@webitel/api-services'
-          - '@webitel/flow-ui-sdk'
           - '@webitel/styleguide'
 
       version:
