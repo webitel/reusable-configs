@@ -1,0 +1,37 @@
+name: Sync Python
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - common/**
+      - python/**
+      - .github/workflows/sync-python.yml
+      - .github/workflows/sync-reusable.yml
+
+  workflow_dispatch:
+
+concurrency:
+  group: sync-python-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    name: Sync
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config-path: python/sync.yml
+            sync-type: dynamic
+
+          - config-path: python/sync-static.yml
+            sync-type: static
+
+    uses: ./.github/workflows/sync-reusable.yml
+    secrets: inherit
+    with:
+      config-path: ${{ matrix.config-path }}
+      sync-type: ${{ matrix.sync-type }}
+      repositories: |
+        webitel-kb-indexer
