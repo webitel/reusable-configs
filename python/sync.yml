@@ -1,0 +1,35 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v2
+
+  # Generic Debian maintainer scripts, synced verbatim from
+  # common/deploy/debian/ via sync-static.yml.
+  deb/scripts: &deb/scripts |
+    postinstall: deploy/debian/postinst.sh
+    preremove: deploy/debian/prerm.sh
+    postremove: deploy/debian/postrm.sh
+
+  template/webitel-kb-indexer: &template/webitel-kb-indexer
+    <<: *template/workflow
+    name: webitel-kb-indexer
+    branch: main
+    build:
+      build-info: kb_indexer._build_info
+      package-contents: |
+        src=deploy/systemd/webitel-kb-indexer.service dst=/etc/systemd/system/webitel-kb-indexer.service type=config
+        src=.env.example dst=/etc/default/webitel-kb-indexer type=config mode=0640
+
+      scripts: *deb/scripts
+
+webitel/webitel-kb-indexer:
+  - source: python/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/webitel-kb-indexer
+
+  - source: python/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/webitel-kb-indexer
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/webitel-kb-indexer

@@ -4,49 +4,17 @@ definitions:
 
 group:
   - repos: |
-      webitel/call_audit
-      webitel/call_center
-      webitel/cases
-      webitel/chat_manager
-      webitel/engine
-      webitel/flow_manager
-      webitel/im-account-service
-      webitel/im-contact-service
-      webitel/im-delivery-service
-      webitel/im-gateway-service
-      webitel/im-providers-service
-      webitel/im-thread-service
-      webitel/logger
-      webitel/media-exporter
-      webitel/storage
-      webitel/webitel-fts
-      webitel/webitel-kb
-      webitel/webitel-wfm
-      webitel/webitel.go
-      webitel/webrtc_recorder
-      webitel/web-meeting-backend
+      webitel/webitel-kb-indexer
 
     files:
-      - source: golang/configs/.gitignore
+      - source: python/configs/.gitignore
         dest: .gitignore
 
-      - source: golang/.idea
-        dest: .idea
-
-      - source: golang/.vscode
-        dest: .vscode
-
-      - source: golang/configs/.editorconfig
+      - source: python/configs/.editorconfig
         dest: .editorconfig
 
-      - source: golang/configs/dependabot.yml
+      - source: python/configs/dependabot.yml
         dest: .github/dependabot.yml
-
-      - source: golang/configs/.golangci.yaml
-        dest: .golangci.yaml
-
-      - source: golang/configs/.env.otel.example
-        dest: .env.otel.example
 
       # Generic Debian maintainer scripts (service-agnostic, multi-unit aware).
       - source: common/deploy/debian/postinst.sh

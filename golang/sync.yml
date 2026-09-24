@@ -3,7 +3,7 @@ definitions:
     version: v2
 
   # Generic Debian maintainer scripts, synced verbatim from
-  # golang/deploy/debian/ via sync-static.yml. preinst is intentionally
+  # common/deploy/debian/ via sync-static.yml. preinst is intentionally
   # absent (the scripts manage every shipped unit at runtime).
   deb/scripts: &deb/scripts |
     postinstall: deploy/debian/postinst.sh
