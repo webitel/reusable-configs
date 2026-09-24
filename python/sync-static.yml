@@ -1,0 +1,48 @@
+definitions:
+  template/workflow: &template/workflow
+    version: v2
+
+group:
+  - repos: |
+      webitel/webitel-kb-indexer
+
+    files:
+      - source: python/configs/.gitignore
+        dest: .gitignore
+
+      - source: python/configs/.editorconfig
+        dest: .editorconfig
+
+      - source: python/configs/dependabot.yml
+        dest: .github/dependabot.yml
+
+      # Generic Debian maintainer scripts (service-agnostic, multi-unit aware).
+      - source: common/deploy/debian/postinst.sh
+        dest: deploy/debian/postinst.sh
+
+      - source: common/deploy/debian/prerm.sh
+        dest: deploy/debian/prerm.sh
+
+      - source: common/deploy/debian/postrm.sh
+        dest: deploy/debian/postrm.sh
+
+      - source: common/workflows/backport-trigger.yml.njk
+        dest: .github/workflows/backport-trigger.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/backport.yml.njk
+        dest: .github/workflows/backport.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/dependabot-auto-merge.yml
+        dest: .github/workflows/dependabot-auto-merge.yml
+
+      - source: common/workflows/cleanup-artifacts.yml.njk
+        dest: .github/workflows/cleanup-artifacts.yml
+        template:
+          <<: *template/workflow
+
+      - source: common/workflows/release-branch.yml
+        dest: .github/workflows/release-branch.yml
