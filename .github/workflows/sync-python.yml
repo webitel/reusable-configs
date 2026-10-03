@@ -9,6 +9,10 @@ on:
       - .github/workflows/sync-python.yml
       - .github/workflows/sync-reusable.yml
 
+  # Daily run keeps the status issue current after sync PRs are merged; it pushes nothing without changes
+  schedule:
+    - cron: '30 5 * * *'
+
   workflow_dispatch:
     inputs:
       dry-run:

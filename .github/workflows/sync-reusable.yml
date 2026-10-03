@@ -36,7 +36,10 @@ jobs:
           app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
           private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           owner: ${{ github.repository_owner }}
-          repositories: ${{ inputs.repositories }}
+          # The status issue lives in this repository
+          repositories: |
+            ${{ inputs.repositories }}
+            reusable-configs
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v3
@@ -48,6 +51,7 @@ jobs:
           PR_LABELS: sync,${{ inputs.sync-type }}
           ASSIGNEES: kirychukyurii
           FILE_HEADER: true
+          STATUS_ISSUE: File sync status
           OVERWRITE_EXISTING_PR: true
           DRY_RUN: ${{ inputs.dry-run }}
           BRANCH_PREFIX: repo-sync/${{ inputs.sync-type }}
