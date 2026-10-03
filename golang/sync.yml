@@ -94,7 +94,6 @@ repos:
       binary-name: webitel-call-audit
       ldflags: |
         -s -w
-      scripts: ''
 
   webitel/call_center:
     name: webitel-call-center
