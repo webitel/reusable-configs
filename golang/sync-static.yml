@@ -32,9 +32,13 @@ group:
 
       - source: golang/.idea
         dest: .idea
+        # IDEs rewrite these files without comments, which would show up as drift on every sync
+        header: false
 
       - source: golang/.vscode
         dest: .vscode
+        # IDEs rewrite these files without comments, which would show up as drift on every sync
+        header: false
 
       - source: golang/configs/.editorconfig
         dest: .editorconfig

@@ -10,6 +10,11 @@ on:
       - .github/workflows/sync-reusable.yml
 
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Show what would be synced without pushing or opening pull requests
+        type: boolean
+        default: false
 
 concurrency:
   group: sync-node-${{ github.ref }}
@@ -33,6 +38,7 @@ jobs:
     with:
       config-path: ${{ matrix.config-path }}
       sync-type: ${{ matrix.sync-type }}
+      dry-run: ${{ inputs.dry-run == true }}
       repositories: |
         client
         web-meeting

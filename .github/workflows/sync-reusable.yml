@@ -12,6 +12,10 @@ on:
       repositories:
         required: true
         type: string
+      dry-run:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   sync:
@@ -21,6 +25,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
+        with:
+          # file-sync lists the source commits each sync brings
+          fetch-depth: 0
 
       - name: Create Github APP token
         uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
@@ -32,7 +39,7 @@ jobs:
           repositories: ${{ inputs.repositories }}
 
       - name: Sync files across repositories
-        uses: webitel/reusable-workflows/actions/file-sync@file-sync-v2
+        uses: webitel/reusable-workflows/actions/file-sync@file-sync-v3
         with:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
@@ -40,12 +47,9 @@ jobs:
           CONFIG_PATH: ${{ inputs.config-path }}
           PR_LABELS: sync,${{ inputs.sync-type }}
           ASSIGNEES: kirychukyurii
-          COMMIT_EACH_FILE: false
-          COMMIT_PREFIX: ""
-          ORIGINAL_MESSAGE: true
-          COMMIT_AS_PR_TITLE: true
+          FILE_HEADER: true
           OVERWRITE_EXISTING_PR: true
-          DRY_RUN: false
+          DRY_RUN: ${{ inputs.dry-run }}
           BRANCH_PREFIX: repo-sync/${{ inputs.sync-type }}
           NUNJUCKS_VARIABLE_START: "((("
           NUNJUCKS_VARIABLE_END: ")))"
