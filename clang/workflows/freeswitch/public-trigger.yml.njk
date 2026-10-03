@@ -88,7 +88,7 @@ jobs:
               "artifact-actions-run-id": "${{ github.event.workflow_run.id }}",
               "arch-matrix": ${{ toJSON(needs.version.outputs.arch-matrix) }},
               "codename-matrix": ${{ toJSON(needs.version.outputs.codename-matrix) }},
-              "repository-environment": "${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance' || format('{0}-releases', needs.version.outputs.version) }}",
-              "deb-component": "${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'dev' || format('{0}-releases', needs.version.outputs.version) }}",
+              "repository-environment": "${{ needs.version.outputs.repository-environment }}",
+              "deb-component": "${{ needs.version.outputs.deb-component }}",
               "version": "${{ needs.version.outputs.version }}"
             }

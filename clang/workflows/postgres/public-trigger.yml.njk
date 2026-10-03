@@ -69,7 +69,7 @@ jobs:
                 printf 'package-label=extension\n'
                 printf 'arch-matrix=%s\n' '${{ needs.version.outputs.arch-matrix }}'
                 printf 'deb-package-pattern=((( extension["package-name-prefix"] )))-[0-9]*.deb\n'
-                printf 'repository-environment=%s\n' '${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance' || format('{0}-releases', needs.version.outputs.version) }}'
+                printf 'repository-environment=%s\n' '${{ needs.version.outputs.repository-environment }}'
               } >> "${GITHUB_OUTPUT}"
               ;;
 
@@ -78,7 +78,7 @@ jobs:
                 printf 'package-label=migrations\n'
                 printf 'arch-matrix=["all"]\n'
                 printf 'deb-package-pattern=((( migrations["package-name"] )))*.deb\n'
-                printf 'repository-environment=%s\n' '${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance-migrations' || format('{0}-releases-migrations', needs.version.outputs.version) }}'
+                printf 'repository-environment=%s-migrations\n' '${{ needs.version.outputs.repository-environment }}'
               } >> "${GITHUB_OUTPUT}"
               ;;
 
@@ -135,6 +135,6 @@ jobs:
               "package-label": ${{ toJSON(needs.resolve.outputs.package-label) }},
               "deb-package-pattern": ${{ toJSON(needs.resolve.outputs.deb-package-pattern) }},
               "repository-environment": ${{ toJSON(needs.resolve.outputs.repository-environment) }},
-              "deb-component": ${{ toJSON(github.event.repository.default_branch == github.event.workflow_run.head_branch && 'dev' || format('{0}-releases', needs.version.outputs.version)) }},
+              "deb-component": ${{ toJSON(needs.version.outputs.deb-component) }},
               "version": ${{ toJSON(needs.version.outputs.version) }}
             }
