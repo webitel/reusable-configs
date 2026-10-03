@@ -27,43 +27,8 @@ concurrency:
 jobs:
   sync:
     name: Sync
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - config-path: golang/sync.yml
-            sync-type: dynamic
-
-          - config-path: golang/sync-static.yml
-            sync-type: static
-
     uses: ./.github/workflows/sync-reusable.yml
     secrets: inherit
     with:
-      config-path: ${{ matrix.config-path }}
-      sync-type: ${{ matrix.sync-type }}
+      stack: golang
       dry-run: ${{ inputs.dry-run == true }}
-      repositories: |
-        call_audit
-        call_center
-        cases
-        chat-migration-cli
-        chat_manager
-        engine
-        flow_manager
-        im-account-service
-        im-contact-service
-        im-delivery-service
-        im-gateway-service
-        im-providers-service
-        im-thread-service
-        logger
-        media-exporter
-        nomad-driver-systemd
-        storage
-        webitel-fts
-        webitel-kb
-        webitel-wfm
-        webitel.go
-        webrtc_recorder
-        web-meeting-backend

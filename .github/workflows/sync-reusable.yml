@@ -3,13 +3,8 @@ name: Sync Reusable
 on:
   workflow_call:
     inputs:
-      config-path:
-        required: true
-        type: string
-      sync-type:
-        required: true
-        type: string
-      repositories:
+      stack:
+        description: Stack directory; its sync.yml lists the files and the target repositories
         required: true
         type: string
       dry-run:
@@ -19,7 +14,7 @@ on:
 
 jobs:
   sync:
-    name: Files (${{ inputs.sync-type }})
+    name: Files (${{ inputs.stack }})
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +24,19 @@ jobs:
           # file-sync lists the source commits each sync brings
           fetch-depth: 0
 
+      # The token is scoped to the repositories of the sync config, plus this repository for the status issue
+      - name: List target repositories
+        id: repos
+        env:
+          CONFIG_PATH: ${{ inputs.stack }}/sync.yml
+        run: |
+          {
+            echo 'names<<EOF'
+            yq -r '.repos | keys | .[] | sub("^[^/]+/"; "") | sub("@.*$"; "")' "$CONFIG_PATH" | sort -u
+            echo reusable-configs
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create Github APP token
         uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
         id: app-token
@@ -36,10 +44,7 @@ jobs:
           app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
           private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
           owner: ${{ github.repository_owner }}
-          # The status issue lives in this repository
-          repositories: |
-            ${{ inputs.repositories }}
-            reusable-configs
+          repositories: ${{ steps.repos.outputs.names }}
 
       - name: Sync files across repositories
         uses: webitel/reusable-workflows/actions/file-sync@file-sync-v3
@@ -47,13 +52,13 @@ jobs:
           GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
           GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
           GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
-          CONFIG_PATH: ${{ inputs.config-path }}
-          PR_LABELS: sync,${{ inputs.sync-type }}
+          CONFIG_PATH: ${{ inputs.stack }}/sync.yml
+          PR_LABELS: sync,${{ inputs.stack }}
           ASSIGNEES: kirychukyurii
           FILE_HEADER: true
           STATUS_ISSUE: File sync status
           OVERWRITE_EXISTING_PR: true
           DRY_RUN: ${{ inputs.dry-run }}
-          BRANCH_PREFIX: repo-sync/${{ inputs.sync-type }}
+          BRANCH_PREFIX: repo-sync/${{ inputs.stack }}
           NUNJUCKS_VARIABLE_START: "((("
           NUNJUCKS_VARIABLE_END: ")))"

@@ -1,33 +1,78 @@
-definitions:
-  template/workflow: &template/workflow
-    version: v2
+# C/C++ modules: synced by .github/workflows/sync-clang.yml with file-sync.
+#
+# defaults: template variables of every repository, deep-merged under each entry of repos.
+# files:    synced to every repository; .njk files are rendered with the repository's variables.
+# repos:    one entry per repository with its variables. Adding a repository = adding an entry here.
+#
+# Flags used by `when`:
+#   freeswitch: FreeSWITCH module (freeswitch/ workflows).
+#   postgres:   PostgreSQL extension (postgres/ workflows).
+#   public:     name of the public mirror repository; adds its public-trigger workflow.
 
-  template/freeswitch-mod-amd: &template/freeswitch-mod-amd
-    <<: *template/workflow
+defaults:
+  version: v2
+  branch: main
+
+files:
+  - source: clang/workflows/freeswitch/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    when: freeswitch
+
+  - source: common/workflows/backport-trigger.yml.njk
+    dest: .github/workflows/backport-trigger.yml
+
+  - source: common/workflows/backport.yml.njk
+    dest: .github/workflows/backport.yml
+
+  - source: common/workflows/cleanup-artifacts.yml.njk
+    dest: .github/workflows/cleanup-artifacts.yml
+
+  - source: clang/workflows/release-branch.yml
+    dest: .github/workflows/release-branch.yml
+
+  - source: clang/workflows/freeswitch/public-trigger.yml.njk
+    dest: .github/workflows/public-trigger.yml
+    when:
+      - freeswitch
+      - public
+
+  - source: clang/workflows/postgres/extension.yml.njk
+    dest: .github/workflows/extension.yml
+    when: postgres
+
+  - source: clang/workflows/postgres/migrations.yml.njk
+    dest: .github/workflows/migrations.yml
+    when: postgres
+
+  - source: clang/workflows/postgres/public-trigger.yml.njk
+    dest: .github/workflows/public-trigger.yml
+    when:
+      - postgres
+      - public
+
+repos:
+  webitel/freeswitch-mod-amd:
     name: freeswitch-mod-amd
-    branch: main
     build:
       mod-name: mod_amd
       args: |
         -DFREESWITCH_INCLUDE_DIR=/usr/include/freeswitch \
         -DINSTALL_MOD_DIR=/usr/local/freeswitch/mod \
         -DCMAKE_BUILD_TYPE=Release
+    freeswitch: true
 
-  template/freeswitch-mod-amqp: &template/freeswitch-mod-amqp
-    <<: *template/workflow
+  webitel/freeswitch-mod-amqp:
     name: freeswitch-mod-amqp
-    branch: main
     build:
       mod-name: mod_amqp
       args: |
         -DFREESWITCH_INCLUDE_DIR=/usr/include/freeswitch \
         -DINSTALL_MOD_DIR=/usr/local/freeswitch/mod \
         -DCMAKE_BUILD_TYPE=Release
+    freeswitch: true
 
-  template/freeswitch-mod-grpc: &template/freeswitch-mod-grpc
-    <<: *template/workflow
+  webitel/freeswitch-mod-grpc:
     name: freeswitch-mod-grpc
-    branch: main
     build:
       mod-name: mod_grpc
       args: |
@@ -35,11 +80,10 @@ definitions:
         -DFREESWITCH_INCLUDE_DIR=/usr/include/freeswitch \
         -DINSTALL_MOD_DIR=/usr/local/freeswitch/mod \
         -DCMAKE_BUILD_TYPE=Release
+    freeswitch: true
 
-  template/freeswitch-mod-google-transcribe: &template/freeswitch-mod-google-transcribe
-    <<: *template/workflow
+  webitel/freeswitch-mod-google-transcribe:
     name: freeswitch-mod-google-transcribe
-    branch: main
     public: freeswitch-mod-google-transcribe-public
     build:
       mod-name: mod_google_transcribe
@@ -47,11 +91,10 @@ definitions:
         -DFREESWITCH_INCLUDE_DIR=/usr/include/freeswitch \
         -DINSTALL_MOD_DIR=/usr/local/freeswitch/mod \
         -DCMAKE_BUILD_TYPE=Release
+    freeswitch: true
 
-  template/postgresql-extension-wbt-cc: &template/postgresql-extension-wbt-cc
-    <<: *template/workflow
+  webitel/postgresql-extension-wbt-cc:
     name: pg-wbt-cc
-    branch: main
     public: postgresql-extension-wbt-cc-public
     extension:
       package-name-prefix: webitel-postgresql
@@ -66,51 +109,13 @@ definitions:
         src=cc_sql--1.2--1.1.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.2--1.1.sql type=file mode=0644
         src=cc_sql--1.2--1.3.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.2--1.3.sql type=file mode=0644
         src=cc_sql--1.3--1.2.sql dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/extension/cc_sql--1.3--1.2.sql type=file mode=0644
-
       args: |
         -DPostgreSQL_TYPE_INCLUDE_DIR=${{ needs.postgres-version.outputs.includedir-server }} \
         -DCC_BUILD_VERSION="${{ needs.metadata.outputs.build-version }}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DINSTALL_MOD_DIR=${{ needs.postgres-version.outputs.pkglibdir }}
-
     migrations:
       package-name: webitel-postgresql-migrations
       package-description: Webitel PostgreSQL migrations
       src-dir: webitel
-
-webitel/freeswitch-mod-amd:
-  - source: clang/workflows/freeswitch/workflow.yml.njk
-    dest: .github/workflows/workflow.yml
-    template: *template/freeswitch-mod-amd
-
-webitel/freeswitch-mod-amqp:
-  - source: clang/workflows/freeswitch/workflow.yml.njk
-    dest: .github/workflows/workflow.yml
-    template: *template/freeswitch-mod-amqp
-
-webitel/freeswitch-mod-grpc:
-  - source: clang/workflows/freeswitch/workflow.yml.njk
-    dest: .github/workflows/workflow.yml
-    template: *template/freeswitch-mod-grpc
-
-webitel/freeswitch-mod-google-transcribe:
-  - source: clang/workflows/freeswitch/workflow.yml.njk
-    dest: .github/workflows/workflow.yml
-    template: *template/freeswitch-mod-google-transcribe
-
-  - source: clang/workflows/freeswitch/public-trigger.yml.njk
-    dest: .github/workflows/public-trigger.yml
-    template: *template/freeswitch-mod-google-transcribe
-
-webitel/postgresql-extension-wbt-cc:
-  - source: clang/workflows/postgres/extension.yml.njk
-    dest: .github/workflows/extension.yml
-    template: *template/postgresql-extension-wbt-cc
-
-  - source: clang/workflows/postgres/migrations.yml.njk
-    dest: .github/workflows/migrations.yml
-    template: *template/postgresql-extension-wbt-cc
-
-  - source: clang/workflows/postgres/public-trigger.yml.njk
-    dest: .github/workflows/public-trigger.yml
-    template: *template/postgresql-extension-wbt-cc
+    postgres: true
