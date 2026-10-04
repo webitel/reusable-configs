@@ -1,4 +1,4 @@
-# Go services: synced by .github/workflows/sync-golang.yml with file-sync.
+# Go services: synced by .github/workflows/sync.yml with file-sync.
 #
 # defaults: template variables of every repository, deep-merged under each entry of repos.
 # files:    synced to every repository; .njk files are rendered with the repository's variables.

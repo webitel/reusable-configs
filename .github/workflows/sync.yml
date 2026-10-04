@@ -1,0 +1,107 @@
+name: Sync
+
+on:
+  push:
+    branches: [ main ]
+
+  # Keeps the status issue current after sync PRs are merged; a run without changes pushes nothing
+  schedule:
+    - cron: '0 5 * * *'
+
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: Stack directory to sync (empty syncs all of them)
+        type: string
+        default: ''
+      dry-run:
+        description: Show what would be synced without pushing or opening pull requests
+        type: boolean
+        default: false
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      stacks: ${{ steps.stacks.outputs.stacks }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Every directory with a sync.yml is a stack; a push syncs only the stacks it changed
+      - name: Pick stacks
+        id: stacks
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          STACK: ${{ inputs.stack }}
+        run: |
+          stacks=$(.github/scripts/sync-stacks.sh)
+          echo "Stacks: ${stacks:-none}" | tr '\n' ' '
+          echo "stacks=$(jq -Rnc '[inputs | select(length > 0)]' <<< "${stacks}")" >> "$GITHUB_OUTPUT"
+
+  sync:
+    name: Sync (${{ matrix.stack }})
+    needs: plan
+    if: needs.plan.outputs.stacks != '[]'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        stack: ${{ fromJSON(needs.plan.outputs.stacks) }}
+
+    concurrency:
+      group: sync-${{ matrix.stack }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          # file-sync lists the source commits each sync brings
+          fetch-depth: 0
+
+      # The token is scoped to the repositories of the sync config, plus this repository for the status issue
+      - name: List target repositories
+        id: repos
+        env:
+          CONFIG_PATH: ${{ matrix.stack }}/sync.yml
+        run: |
+          {
+            echo 'names<<EOF'
+            yq -r '.repos | keys | .[] | sub("^[^/]+/"; "") | sub("@.*$"; "")' "$CONFIG_PATH" | sort -u
+            echo reusable-configs
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create Github APP token
+        uses: webitel/reusable-workflows/actions/create-github-app-token@create-github-app-token-v1
+        id: app-token
+        with:
+          app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
+          private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ steps.repos.outputs.names }}
+
+      - name: Sync files across repositories
+        uses: webitel/reusable-workflows/actions/file-sync@file-sync-v3
+        with:
+          GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
+          GIT_USERNAME: ${{ steps.app-token.outputs.user-name }}
+          GIT_EMAIL: ${{ steps.app-token.outputs.user-email }}
+          CONFIG_PATH: ${{ matrix.stack }}/sync.yml
+          PR_LABELS: sync,${{ matrix.stack }}
+          ASSIGNEES: kirychukyurii
+          FILE_HEADER: true
+          STATUS_ISSUE: File sync status
+          OVERWRITE_EXISTING_PR: true
+          DRY_RUN: ${{ inputs.dry-run == true }}
+          BRANCH_PREFIX: repo-sync/${{ matrix.stack }}
+          NUNJUCKS_VARIABLE_START: "((("
+          NUNJUCKS_VARIABLE_END: ")))"
