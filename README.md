@@ -1,16 +1,18 @@
 # reusable-configs
 
 Workflows and configs shared by Webitel repositories. Each stack directory is synced to its repositories by
-[file-sync](https://github.com/webitel/reusable-workflows/tree/main/actions/file-sync), which opens one pull request
-per repository whenever something here changes.
+[file-sync](https://github.com/webitel/reusable-workflows/tree/main/actions/file-sync)
+(`.github/workflows/sync.yml`), which opens one pull request per repository whenever something here changes.
 
-| Directory | Repositories | Sync workflow |
-|---|---|---|
-| `golang/` | Go services and tools | `.github/workflows/sync-golang.yml` |
-| `python/` | Python services | `.github/workflows/sync-python.yml` |
-| `node/` | Front-end applications | `.github/workflows/sync-node.yml` |
-| `clang/` | FreeSWITCH modules, PostgreSQL extensions | `.github/workflows/sync-clang.yml` |
-| `common/` | Files shared by several stacks | — |
+| Directory | Repositories |
+|---|---|
+| `golang/` | Go services and tools |
+| `python/` | Python services |
+| `node/` | Front-end applications |
+| `clang/` | FreeSWITCH modules, PostgreSQL extensions |
+| `common/` | Files shared by several stacks |
+
+A new stack is a new directory with a `sync.yml`; the sync workflow picks it up without changes.
 
 ## `<stack>/sync.yml`
 
@@ -45,6 +47,6 @@ request with all files, a manifest (`.github/file-sync/<stack>-sync.yml`) and "D
 
 ## Running a sync
 
-Syncs run on every push to `main` that touches the stack or `common/`, and daily. To preview without pushing anything,
-run the stack's sync workflow manually with **dry-run**. The pinned **File sync status** issue shows the state of every
-repository.
+The **Sync** workflow runs on every push to `main` for the stacks it changed (all of them when `common/` changes), and
+daily for every stack. Run it manually to sync one stack (or all, when left empty), with **dry-run** to preview without
+pushing anything. The pinned **File sync status** issue shows the state of every repository.
