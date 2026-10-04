@@ -9,7 +9,16 @@ on:
       - .github/workflows/sync-clang.yml
       - .github/workflows/sync-reusable.yml
 
+  # Daily run keeps the status issue current after sync PRs are merged; it pushes nothing without changes
+  schedule:
+    - cron: '0 5 * * *'
+
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Show what would be synced without pushing or opening pull requests
+        type: boolean
+        default: false
 
 concurrency:
   group: sync-clang-${{ github.ref }}
@@ -18,24 +27,8 @@ concurrency:
 jobs:
   sync:
     name: Sync
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - config-path: clang/sync.yml
-            sync-type: dynamic
-
-          - config-path: clang/sync-static.yml
-            sync-type: static
-
     uses: ./.github/workflows/sync-reusable.yml
     secrets: inherit
     with:
-      config-path: ${{ matrix.config-path }}
-      sync-type: ${{ matrix.sync-type }}
-      repositories: |
-        freeswitch-mod-amd
-        freeswitch-mod-amqp
-        freeswitch-mod-grpc
-        freeswitch-mod-google-transcribe
-        postgresql-extension-wbt-cc
+      stack: clang
+      dry-run: ${{ inputs.dry-run == true }}

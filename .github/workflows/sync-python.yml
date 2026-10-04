@@ -9,7 +9,16 @@ on:
       - .github/workflows/sync-python.yml
       - .github/workflows/sync-reusable.yml
 
+  # Daily run keeps the status issue current after sync PRs are merged; it pushes nothing without changes
+  schedule:
+    - cron: '30 5 * * *'
+
   workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Show what would be synced without pushing or opening pull requests
+        type: boolean
+        default: false
 
 concurrency:
   group: sync-python-${{ github.ref }}
@@ -18,20 +27,8 @@ concurrency:
 jobs:
   sync:
     name: Sync
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - config-path: python/sync.yml
-            sync-type: dynamic
-
-          - config-path: python/sync-static.yml
-            sync-type: static
-
     uses: ./.github/workflows/sync-reusable.yml
     secrets: inherit
     with:
-      config-path: ${{ matrix.config-path }}
-      sync-type: ${{ matrix.sync-type }}
-      repositories: |
-        webitel-kb-indexer
+      stack: python
+      dry-run: ${{ inputs.dry-run == true }}
