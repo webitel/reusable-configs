@@ -1,9 +1,15 @@
+{% set semver = versioning == "semver" %}
 name: Workflow ( (((- name -))) )
 run-name: "((( name )))@${{ github.ref_name }}#${{ github.run_number }} - ${{ github.event.head_commit.message }}"
 
 on:
   push:
+{% if semver %}
+    branches: [ ((( branch | default("main") ))) ]
+    tags: [ "v[0-9]+.[0-9]+.[0-9]+" ]
+{% else %}
     branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
+{% endif %}
 
 permissions: { contents: read }
 concurrency:
@@ -20,6 +26,7 @@ jobs:
       id-token: write
 
     with:
+      versioning: ((( versioning | default("calver") )))
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.ref_name }}
       arch: ((( build.arch | default("${{ vars.BUILD_ARCH }}") )))
@@ -48,10 +55,10 @@ jobs:
     with:
       arch: ${{ matrix.arch }}
       version: ${{ needs.prepare.outputs.version }}
-      version-build: ${{ github.run_number }}
+      version-build: ${{ needs.prepare.outputs.version-build }}
       build-timestamp: ${{ needs.prepare.outputs.build-timestamp }}
       build-info: ((( build["build-info"] )))
-      prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+      prerelease: ${{ needs.prepare.outputs.prerelease }}
       package-name: ((( name )))
       package-description: ${{ github.event.repository.description }}
       package-contents: |
@@ -61,6 +68,7 @@ jobs:
       scripts: |
         ((( build["scripts"] | safe | indent(8) )))
 
+{% if not semver %}
   deploy:
     name: Deploy
     if: github.event.repository.private == false
@@ -68,13 +76,19 @@ jobs:
     uses: webitel/reusable-workflows/.github/workflows/_deploy.yml@((( version )))
     secrets: inherit
     with:
-      repository-environment: ${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}
+      repository-environment: ${{ needs.prepare.outputs.repository-environment }}
       deb-package-pattern: "((( name )))*.deb"
 
+{% endif %}
   publish:
     name: Publish
+{% if semver %}
+    needs: [ prepare, compile ]
+    if: github.event.repository.private == false
+{% else %}
     needs: [ prepare, compile, deploy ]
     if: always() && !cancelled() && github.event.repository.private == false && needs.compile.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped')
+{% endif %}
     strategy:
       matrix:
         arch: ${{ fromJSON(needs.prepare.outputs.arch-matrix) }}
@@ -84,9 +98,9 @@ jobs:
     secrets: inherit
     with:
       arch: ${{ matrix.arch }}
-      repository-environment: ${{ github.event.repository.default_branch == github.ref_name && 'acceptance' || format('{0}-releases', needs.prepare.outputs.version) }}
+      repository-environment: ${{ needs.prepare.outputs.repository-environment }}
       deb-package-pattern: "((( name )))*.deb"
-      deb-component: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || format('{0}-releases', needs.prepare.outputs.version) }}
+      deb-component: ${{ needs.prepare.outputs.deb-component }}
       deb-codename: ${{ matrix.codename }}
       deb-s3-bucket-name: ${{ vars.DEB_S3_BUCKET_NAME }}
       deb-s3-bucket-region: ${{ vars.DEB_S3_DEFAULT_REGION }}
@@ -96,9 +110,9 @@ jobs:
   release:
     name: Release
     needs: [ prepare, publish ]
-    if: github.event.repository.default_branch != github.ref_name && needs.publish.result == 'success'
+    if: needs.prepare.outputs.release-tag != '' && needs.publish.result == 'success'
     uses: webitel/reusable-workflows/.github/workflows/_release.yml@((( version )))
     permissions: { contents: write }
     with:
-      tag: ${{ format('{0}-{1}', needs.prepare.outputs.version, github.run_number) }}
+      tag: ${{ needs.prepare.outputs.release-tag }}
       tag-target-commitish: ${{ github.sha }}
