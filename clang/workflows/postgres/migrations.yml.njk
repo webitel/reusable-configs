@@ -4,11 +4,6 @@ run-name: "${{ github.event.repository.name }}@${{ github.ref_name }}#${{ github
 on:
   push:
     branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
-    paths:
-      - "((( migrations["src-dir"] | default("webitel") )))/**"
-      - ".github/workflows/migrations.yml"
-      - ".github/workflows/public-trigger.yml"
-      - ".github/actionlint.yaml"
 
 permissions: { contents: read }
 concurrency:
@@ -16,8 +11,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  matrix:
+    name: Load build matrix
+    runs-on: [ arc-runner-set ]
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      pairs: ${{ steps.read.outputs.pairs }}
+      codenames-csv: ${{ steps.read.outputs.codenames-csv }}
+
+    steps:
+      - name: Checkout matrix file
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/pg-matrix.json
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Parse pg-matrix.json
+        id: read
+        run: |
+          set -euo pipefail
+          f=.github/pg-matrix.json
+          {
+            printf 'pairs=%s\n'         "$(jq -c '[ .[] | {"pg-major", codename} ] | unique' "$f")"
+            printf 'codenames-csv=%s\n' "$(jq -r '[ .[].codename ] | unique | join(",")' "$f")"
+          } >> "${GITHUB_OUTPUT}"
+
   version:
     name: Version
+    needs: [ matrix ]
     uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
     permissions:
       contents: read
@@ -26,39 +51,17 @@ jobs:
     with:
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.ref_name }}
-      arch: ${{ vars.BUILD_ARCH }}
-      codename: ${{ vars.DEB_CODENAME }}
-
-  postgres-version:
-    name: PostgreSQL version
-    runs-on: [ arc-c-runner-set ]
-    outputs:
-      version: ${{ steps.pg.outputs.version }}
-      major: ${{ steps.pg.outputs.major }}
-
-    steps:
-      - name: Get PostgreSQL build paths
-        id: pg
-        run: |
-          PG_VERSION="$(pg_config --version)"
-          PG_MAJOR="$(printf '%s\n' "${PG_VERSION}" | sed -E 's/^PostgreSQL ([0-9]+).*/\1/')"
-
-          case "${PG_MAJOR}" in
-            ''|*[!0-9]*)
-              echo "Unable to parse PostgreSQL major version from: ${PG_VERSION}" >&2
-              exit 1
-              ;;
-          esac
-
-          {
-            printf 'version=%s\n' "${PG_VERSION}"
-            printf 'major=%s\n' "${PG_MAJOR}"
-          } >> "${GITHUB_OUTPUT}"
+      arch: all
+      codename: ${{ needs.matrix.outputs.codenames-csv }}
 
   build:
-    name: Migrations package
+    name: Migrations package (pg${{ matrix.pg-major }}/${{ matrix.codename }})
+    needs: [ matrix, version ]
     runs-on: [ arc-runner-set ]
-    needs: [ version, postgres-version ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.pairs) }}
 
     steps:
       - name: Checkout repository
@@ -76,16 +79,37 @@ jobs:
           homepage: https://webitel.com
           arch: all
           platform: linux
-          package-name: ((( migrations["package-name"] )))
+          package-name: ((( migrations["package-name"] )))-${{ matrix.pg-major }}
           package-description: ((( migrations["package-description"] | default("Webitel PostgreSQL migrations") )))
           version: ${{ needs.version.outputs.version }}
-          release: ${{ needs.version.outputs.version-build }}
-          prerelease: ${{ needs.version.outputs.prerelease }}
-          version-metadata: postgresql${{ needs.postgres-version.outputs.major }}
+          release: ${{ github.run_number }}
+          prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+          version-metadata: ${{ matrix.codename }}
           contents: |
-            src=((( migrations["src-dir"] | default("webitel") ))) dst=/usr/share/postgresql/${{ needs.postgres-version.outputs.major }}/((( migrations["src-dir"] | default("webitel") ))) type=tree mode=0644
+            src=((( migrations["src-dir"] | default("webitel") ))) dst=/usr/share/postgresql/${{ matrix.pg-major }}/((( migrations["src-dir"] | default("webitel") ))) type=tree mode=0755
 
-      - name: Upload artifacts
+      - name: Upload per-pair artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-packages-all-${{ matrix.codename }}-${{ matrix.pg-major }}
+          retention-days: 7
+          compression-level: 9
+          path: dist
+
+  merge:
+    name: Merge package artifacts (all)
+    needs: [ build ]
+    runs-on: [ arc-runner-set ]
+
+    steps:
+      - name: Download per-pair artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: build-packages-all-*
+          merge-multiple: true
+          path: dist
+
+      - name: Upload merged artifact
         uses: actions/upload-artifact@v7
         with:
           name: build-packages-all

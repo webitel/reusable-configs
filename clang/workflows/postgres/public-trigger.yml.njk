@@ -34,9 +34,41 @@ jobs:
         run: |
           printf 'first-line=%s\n' "${MSG%%$'\n'*}" >> "${GITHUB_OUTPUT}"
 
+  matrix:
+    name: Load build matrix
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: [ arc-runner-set ]
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      pairs: ${{ steps.read.outputs.pairs }}
+      codenames-csv: ${{ steps.read.outputs.codenames-csv }}
+
+    steps:
+      - name: Checkout matrix file at build SHA
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          sparse-checkout: .github/pg-matrix.json
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Parse pg-matrix.json
+        id: read
+        run: |
+          set -euo pipefail
+          f=.github/pg-matrix.json
+          {
+            printf 'pairs=%s\n'         "$(jq -c '[ .[] | {"pg-major", codename} ] | unique' "$f")"
+            printf 'codenames-csv=%s\n' "$(jq -r '[ .[].codename ] | unique | join(",")' "$f")"
+          } >> "${GITHUB_OUTPUT}"
+
   version:
     name: Version
     if: github.event.workflow_run.conclusion == 'success'
+    needs: [ matrix ]
     uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
     permissions:
       contents: read
@@ -46,7 +78,7 @@ jobs:
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.event.workflow_run.head_branch }}
       arch: ${{ vars.BUILD_ARCH }}
-      codename: ${{ vars.DEB_CODENAME }}
+      codename: ${{ needs.matrix.outputs.codenames-csv }}
 
   resolve:
     name: Resolve package settings
@@ -56,8 +88,8 @@ jobs:
     outputs:
       package-label: ${{ steps.resolve.outputs.package-label }}
       arch-matrix: ${{ steps.resolve.outputs.arch-matrix }}
-      deb-package-pattern: ${{ steps.resolve.outputs.deb-package-pattern }}
       repository-environment: ${{ steps.resolve.outputs.repository-environment }}
+      package-prefix: ${{ steps.resolve.outputs.package-prefix }}
 
     steps:
       - name: Resolve package settings
@@ -67,18 +99,18 @@ jobs:
             "Workflow (extension / ((( name -))) )")
               {
                 printf 'package-label=extension\n'
+                printf 'package-prefix=((( extension["package-name-prefix"] )))-\n'
                 printf 'arch-matrix=%s\n' '${{ needs.version.outputs.arch-matrix }}'
-                printf 'deb-package-pattern=((( extension["package-name-prefix"] )))-[0-9]*.deb\n'
-                printf 'repository-environment=%s\n' '${{ needs.version.outputs.repository-environment }}'
+                printf 'repository-environment=%s\n' '${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance' || format('{0}-releases', needs.version.outputs.version) }}'
               } >> "${GITHUB_OUTPUT}"
               ;;
 
             "Workflow (migrations / ((( name -))) )")
               {
                 printf 'package-label=migrations\n'
+                printf 'package-prefix=((( migrations["package-name"] )))-\n'
                 printf 'arch-matrix=["all"]\n'
-                printf 'deb-package-pattern=((( migrations["package-name"] )))*.deb\n'
-                printf 'repository-environment=%s-migrations\n' '${{ needs.version.outputs.repository-environment }}'
+                printf 'repository-environment=%s\n' '${{ github.event.repository.default_branch == github.event.workflow_run.head_branch && 'acceptance-migrations' || format('{0}-releases-migrations', needs.version.outputs.version) }}'
               } >> "${GITHUB_OUTPUT}"
               ;;
 
@@ -113,11 +145,31 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
 
   dispatch:
-    name: Dispatch
+    name: Dispatch (pg${{ matrix.pg-major }}/${{ matrix.codename }})
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: [ arc-runner-set ]
-    needs: [ metadata, version, resolve, check-artifacts ]
+    needs: [ metadata, matrix, version, resolve, check-artifacts ]
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.pairs) }}
+
     steps:
+      - name: Resolve per-pair package pattern
+        id: pattern
+        env:
+          PG_MAJOR: ${{ matrix.pg-major }}
+          CODENAME: ${{ matrix.codename }}
+          PACKAGE_PREFIX: ${{ needs.resolve.outputs.package-prefix }}
+        run: |
+          set -euo pipefail
+
+          printf 'deb-package-pattern=%s\n' "${PACKAGE_PREFIX}${PG_MAJOR}_*${CODENAME}*.deb" >> "${GITHUB_OUTPUT}"
+
       - name: Dispatch public workflow
         uses: webitel/reusable-workflows/actions/dispatch-public@dispatch-public-v1
         with:
@@ -131,10 +183,10 @@ jobs:
               "triggered-branch": ${{ toJSON(github.event.workflow_run.head_branch) }},
               "artifact-actions-run-id": "${{ github.event.workflow_run.id }}",
               "arch-matrix": ${{ toJSON(needs.resolve.outputs.arch-matrix) }},
-              "codename-matrix": ${{ toJSON(needs.version.outputs.codename-matrix) }},
-              "package-label": ${{ toJSON(needs.resolve.outputs.package-label) }},
-              "deb-package-pattern": ${{ toJSON(needs.resolve.outputs.deb-package-pattern) }},
+              "codename-matrix": ${{ toJSON(format('["{0}"]', matrix.codename)) }},
+              "package-label": ${{ toJSON(format('{0}-{1}-pg{2}', needs.resolve.outputs.package-label, matrix.codename, matrix.pg-major)) }},
+              "deb-package-pattern": ${{ toJSON(steps.pattern.outputs['deb-package-pattern']) }},
               "repository-environment": ${{ toJSON(needs.resolve.outputs.repository-environment) }},
-              "deb-component": ${{ toJSON(needs.version.outputs.deb-component) }},
+              "deb-component": ${{ toJSON(github.event.repository.default_branch == github.event.workflow_run.head_branch && 'dev' || format('{0}-releases', needs.version.outputs.version)) }},
               "version": ${{ toJSON(needs.version.outputs.version) }}
             }

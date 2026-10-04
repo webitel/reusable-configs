@@ -4,16 +4,6 @@ run-name: "${{ github.event.repository.name }}@${{ github.ref_name }}#${{ github
 on:
   push:
     branches: [ ((( branch | default("main") ))), "v[0-9]+.[0-9]+" ]
-    paths:
-      - "CMakeLists.txt"
-      - "Makefile"
-      - "*.c"
-      - "*.h"
-      - "*.control"
-      - "((( extension["sql-pattern"] | default("*.sql") )))"
-      - ".github/workflows/extension.yml"
-      - ".github/workflows/public-trigger.yml"
-      - ".github/actionlint.yaml"
 
 permissions: { contents: read }
 concurrency:
@@ -21,8 +11,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  matrix:
+    name: Load build matrix
+    runs-on: [ arc-runner-set ]
+    defaults:
+      run:
+        shell: bash
+
+    outputs:
+      pairs: ${{ steps.read.outputs.pairs }}
+      codenames-csv: ${{ steps.read.outputs.codenames-csv }}
+      arches-csv: ${{ steps.read.outputs.arches-csv }}
+      arches-json: ${{ steps.read.outputs.arches-json }}
+
+    steps:
+      - name: Checkout matrix file
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/pg-matrix.json
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Parse pg-matrix.json
+        id: read
+        run: |
+          set -euo pipefail
+          f=.github/pg-matrix.json
+          {
+            printf 'pairs=%s\n'         "$(jq -c '.' "$f")"
+            printf 'codenames-csv=%s\n' "$(jq -r '[ .[].codename ] | unique | join(",")' "$f")"
+            printf 'arches-csv=%s\n'    "$(jq -r '[ .[].arch ] | unique | join(",")' "$f")"
+            printf 'arches-json=%s\n'   "$(jq -c '[ .[].arch ] | unique' "$f")"
+          } >> "${GITHUB_OUTPUT}"
+
   version:
     name: Version
+    needs: [ matrix ]
     uses: webitel/reusable-workflows/.github/workflows/_version.yml@((( version )))
     permissions:
       contents: read
@@ -31,51 +55,48 @@ jobs:
     with:
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.ref_name }}
-      arch: ${{ vars.BUILD_ARCH }}
-      codename: ${{ vars.DEB_CODENAME }}
+      arch: ${{ needs.matrix.outputs.arches-csv }}
+      codename: ${{ needs.matrix.outputs.codenames-csv }}
 
-  postgres-version:
-    name: PostgreSQL version
+  compile:
+    name: Build (pg${{ matrix.pg-major }}/${{ matrix.codename }}/${{ matrix.arch }})
+    needs: [ matrix, version ]
     runs-on: [ arc-c-runner-set ]
-    outputs:
-      version: ${{ steps.pg.outputs.version }}
-      major: ${{ steps.pg.outputs.major }}
-      includedir-server: ${{ steps.pg.outputs.includedir-server }}
-      pkglibdir: ${{ steps.pg.outputs.pkglibdir }}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.pairs) }}
+
+    container:
+      image: postgres:${{ matrix.pg-major }}-${{ matrix.codename }}
+      options: --user 0:0
 
     steps:
-      - name: Get PostgreSQL build paths
-        id: pg
+      - name: Install build dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          PG_MAJOR: ${{ matrix.pg-major }}
+
         run: |
-          PG_VERSION="$(pg_config --version)"
-          PG_MAJOR="$(printf '%s\n' "${PG_VERSION}" | sed -E 's/^PostgreSQL ([0-9]+).*/\1/')"
-          PG_INCLUDEDIR_SERVER="$(pg_config --includedir-server)"
-          PG_PKGLIBDIR="$(pg_config --pkglibdir)"
+          set -euo pipefail
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates cmake build-essential git \
+            "postgresql-server-dev-${PG_MAJOR}"
 
-          case "${PG_MAJOR}" in
-            ''|*[!0-9]*)
-              echo "Unable to parse PostgreSQL major version from: ${PG_VERSION}" >&2
-              exit 1
-              ;;
-          esac
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
-          {
-            printf 'version=%s\n' "${PG_VERSION}"
-            printf 'major=%s\n' "${PG_MAJOR}"
-            printf 'includedir-server=%s\n' "${PG_INCLUDEDIR_SERVER}"
-            printf 'pkglibdir=%s\n' "${PG_PKGLIBDIR}"
-          } >> "${GITHUB_OUTPUT}"
-
-  metadata:
-    name: Build metadata
-    runs-on: [ arc-runner-set ]
-    outputs:
-      build-version: ${{ steps.metadata.outputs.build-version }}
-
-    steps:
-      - name: Build version string
-        id: metadata
+      - name: Build metadata
+        id: meta
         run: |
+          set -euo pipefail
           SHORT_SHA="${GITHUB_SHA::12}"
           BUILD_DATE="$(date '+%Y/%m/%d %H:%M:%S')"
           printf 'build-version=build: %s, commit: %s/%s, date: %s\n' \
@@ -84,25 +105,75 @@ jobs:
             "${GITHUB_REF_NAME}" \
             "${BUILD_DATE}" >> "${GITHUB_OUTPUT}"
 
-  compile:
-    name: Build
-    needs: [ version, postgres-version, metadata ]
+      - name: Resolve PostgreSQL paths
+        id: pg
+        run: |
+          set -euo pipefail
+          {
+            printf 'includedir-server=%s\n' "$(pg_config --includedir-server)"
+            printf 'pkglibdir=%s\n'         "$(pg_config --pkglibdir)"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Configure build files
+        run: |
+          cmake -B build \
+            ((( extension["args"] | safe | trim | indent(12) )))
+
+      - name: Compile
+        run: cmake --build build -j "$(nproc)"
+
+      - name: Build package
+        uses: webitel/reusable-workflows/actions/nfpm-build@nfpm-build-v2
+        with:
+          nfpm-version: latest
+          formats: deb
+          target: dist
+          maintainer: Webitel <support@webitel.com>
+          homepage: https://webitel.com
+          arch: ${{ matrix.arch }}
+          platform: linux
+          package-name: ((( extension["package-name-prefix"] )))-${{ matrix.pg-major }}
+          package-description: ${{ github.event.repository.description }}
+          version: ${{ needs.version.outputs.version }}
+          release: ${{ github.run_number }}
+          prerelease: ${{ github.event.repository.default_branch == github.ref_name && 'dev' || '' }}
+          version-metadata: postgresql${{ matrix.pg-major }}.${{ matrix.codename }}
+          depends: ((( extension["package-depends-prefix"] | default("postgresql") )))-${{ matrix.pg-major }}
+          contents: |
+            ((( extension["package-contents"] | safe | trim | indent(12) )))
+
+      - name: Upload per-pair artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-packages-${{ matrix.arch }}-${{ matrix.codename }}-${{ matrix.pg-major }}
+          retention-days: 7
+          compression-level: 9
+          path: dist
+
+  merge:
+    name: Merge package artifacts (${{ matrix.arch }})
+    needs: [ matrix, compile ]
+    runs-on: [ arc-runner-set ]
+    defaults:
+      run:
+        shell: bash
+
     strategy:
       matrix:
-        arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
+        arch: ${{ fromJSON(needs.matrix.outputs.arches-json) }}
 
-    uses: webitel/reusable-workflows/.github/workflows/clang-build.yml@((( version )))
-    with:
-      arch: ${{ matrix.arch }}
-      version: ${{ needs.version.outputs.version }}
-      version-build: ${{ needs.version.outputs.version-build }}
-      version-metadata: postgresql${{ needs.postgres-version.outputs.major }}
-      prerelease: ${{ needs.version.outputs.prerelease }}
-      package-name: ((( extension["package-name-prefix"] )))-${{ needs.postgres-version.outputs.major }}
-      package-description: ${{ github.event.repository.description }}
-      package-depends: ((( extension["package-depends-prefix"] | default("postgresql") )))-${{ needs.postgres-version.outputs.major }}
-      package-contents: |
-        ((( extension["package-contents"] | safe | indent(8) )))
+    steps:
+      - name: Download per-pair artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: build-packages-${{ matrix.arch }}-*
+          merge-multiple: true
+          path: dist
 
-      args: |
-        ((( extension["args"] | safe | indent(8) )))
+      - name: Upload merged artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-packages-${{ matrix.arch }}
+          retention-days: 7
+          compression-level: 9
+          path: dist
