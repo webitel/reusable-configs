@@ -20,7 +20,6 @@ jobs:
         id: app-token
         with:
           client-id: ${{ vars.DELIVERY_BOT_CLIENT_ID }}
-          app-id: ${{ vars.DELIVERY_BOT_APP_ID }}
           private-key: ${{ secrets.DELIVERY_BOT_APP_PEM }}
 
       - name: Dependabot metadata
