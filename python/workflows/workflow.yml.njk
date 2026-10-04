@@ -57,6 +57,8 @@ jobs:
       version: ${{ needs.prepare.outputs.version }}
       version-build: ${{ needs.prepare.outputs.version-build }}
       build-timestamp: ${{ needs.prepare.outputs.build-timestamp }}
+      commit: ${{ needs.prepare.outputs.commit }}
+      branch: ${{ needs.prepare.outputs.branch }}
       build-info: ((( build["build-info"] )))
       prerelease: ${{ needs.prepare.outputs.prerelease }}
       package-name: ((( name )))
