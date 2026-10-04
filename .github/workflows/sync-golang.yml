@@ -43,6 +43,7 @@ jobs:
         call_audit
         call_center
         cases
+        chat-migration-cli
         chat_manager
         engine
         flow_manager
@@ -54,6 +55,7 @@ jobs:
         im-thread-service
         logger
         media-exporter
+        nomad-driver-systemd
         storage
         webitel-fts
         webitel-kb

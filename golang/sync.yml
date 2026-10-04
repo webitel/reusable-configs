@@ -52,6 +52,20 @@ definitions:
 
       scripts: *deb/scripts
 
+  template/chat-migration-cli: &template/chat-migration-cli
+    <<: *template/workflow
+    versioning: semver
+    name: chat-migration-cli
+    branch: main
+    build:
+      binary-name: chat-migration-cli
+      ldflags: |
+        -s -w
+        -X github.com/webitel/chat-migration-cli/internal/buildinfo.Version=${{ needs.prepare.outputs.full-version }}
+        -X github.com/webitel/chat-migration-cli/internal/buildinfo.BuildNumber=${{ needs.prepare.outputs.version-build }}
+        -X github.com/webitel/chat-migration-cli/internal/buildinfo.GitCommit=${{ github.sha }}
+        -X github.com/webitel/chat-migration-cli/internal/buildinfo.BuildTime=${{ needs.prepare.outputs.build-timestamp }}
+
   template/chat_manager: &template/chat_manager
     <<: *template/workflow
     name: webitel-messages
@@ -242,6 +256,22 @@ definitions:
 
       scripts: *deb/scripts
 
+  template/nomad-driver-systemd: &template/nomad-driver-systemd
+    <<: *template/workflow
+    versioning: semver
+    name: nomad-driver-systemd
+    branch: main
+    build:
+      binary-name: nomad-driver-systemd
+      cgo-enabled: true
+      ldflags: |
+        -s -w
+        -X github.com/webitel/nomad-driver-systemd/plugin.pluginVersion=${{ needs.prepare.outputs.full-version }}
+
+      # Nomad loads external drivers from plugin_dir (wansible: nomad_plugin_dir)
+      package-contents: |
+        src=/usr/local/bin/nomad-driver-systemd dst=/opt/nomad/plugins/nomad-driver-systemd type=symlink
+
   template/storage: &template/storage
     <<: *template/workflow
     name: webitel-storage
@@ -411,6 +441,19 @@ webitel/cases:
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/cases
 
+webitel/chat-migration-cli:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/chat-migration-cli
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/chat-migration-cli
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/chat-migration-cli
+
 webitel/chat_manager:
   - source: golang/workflows/workflow.yml.njk
     dest: .github/workflows/workflow.yml
@@ -553,6 +596,19 @@ webitel/media-exporter:
   - source: common/workflows/pull-request-deliver.yml.njk
     dest: .github/workflows/pull-request-deliver.yml
     template: *template/media-exporter
+
+webitel/nomad-driver-systemd:
+  - source: golang/workflows/workflow.yml.njk
+    dest: .github/workflows/workflow.yml
+    template: *template/nomad-driver-systemd
+
+  - source: golang/workflows/pull-request.yml.njk
+    dest: .github/workflows/pull-request.yml
+    template: *template/nomad-driver-systemd
+
+  - source: common/workflows/pull-request-deliver.yml.njk
+    dest: .github/workflows/pull-request-deliver.yml
+    template: *template/nomad-driver-systemd
 
 webitel/storage:
   - source: golang/workflows/workflow.yml.njk
