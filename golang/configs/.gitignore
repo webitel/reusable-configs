@@ -48,6 +48,9 @@ secrets.json
 /bin/
 bin/
 
+# Go: delve debug binaries (VS Code, GoLand)
+__debug_bin*
+
 # Go: test & coverage output
 *.test
 *.out
@@ -151,10 +154,13 @@ dump.rdb
 *.save
 .~*
 
-# AI tooling local state
-.claude/settings.local.json
+# AI tooling: agent config, notes and generated knowledge graphs (local)
+.claude/
+CLAUDE.md
 .cursorignore
 .aider*
+graphify-out/
+.graphifyignore
 
 # direnv (often holds local secrets)
 .envrc
