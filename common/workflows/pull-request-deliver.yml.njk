@@ -28,13 +28,15 @@ jobs:
       versioning: ((( versioning | default("calver") )))
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.event.workflow_run.head_branch }}
-      arch: ${{ vars.BUILD_ARCH }}
-      codename: ${{ vars.DEB_CODENAME }}
+      arch: ((( build.arch | default("${{ vars.BUILD_ARCH }}") )))
+      codename: ((( build.codename | default("${{ vars.DEB_CODENAME }}") )))
 
   publish:
     name: Publish .deb package (${{ matrix.arch }}/${{ matrix.codename }})
     needs: [ version ]
     strategy:
+      # One failed upload must not cancel the others while they hold the APT repository lock.
+      fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
         codename: ${{ fromJSON(needs.version.outputs.codename-matrix) }}

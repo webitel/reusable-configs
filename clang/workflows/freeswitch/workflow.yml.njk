@@ -75,6 +75,8 @@ jobs:
     needs: [ version, compile, deploy ]
     if: github.event.repository.private == false && (always() && !cancelled() && needs.compile.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped'))
     strategy:
+      # One failed upload must not cancel the others while they hold the APT repository lock.
+      fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
         codename: ${{ fromJSON(needs.version.outputs.codename-matrix) }}
