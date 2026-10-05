@@ -28,7 +28,7 @@ jobs:
       versioning: ((( versioning | default("calver") )))
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.event.workflow_run.head_branch }}
-      arch: amd64
+      arch: ((( build["pull-request-arch"] | default("amd64") )))
       codename: ((( build.codename | default("${{ vars.DEB_CODENAME }}") )))
 
   publish:
