@@ -42,7 +42,7 @@ jobs:
     needs: [ prepare ]
     uses: webitel/reusable-workflows/.github/workflows/node-build.yml@((( version )))
     with:
-      arch: all
+      arch: amd64
       version: ${{ needs.prepare.outputs.version }}
       version-build: ${{ needs.prepare.outputs.version-build }}
       build-timestamp: ${{ needs.prepare.outputs.build-timestamp }}
