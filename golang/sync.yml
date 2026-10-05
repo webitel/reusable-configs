@@ -132,6 +132,20 @@ repos:
       scripts: ''
     service: false
 
+  webitel/chat-migration-cli-custom:
+    versioning: semver
+    name: chat-migration-cli-custom
+    build:
+      binary-name: chat-migration-cli-custom
+      ldflags: |
+        -s -w
+        -X github.com/webitel/chat-migration-cli-custom/internal/buildinfo.Version=${{ needs.prepare.outputs.full-version }}
+        -X github.com/webitel/chat-migration-cli-custom/internal/buildinfo.BuildNumber=${{ needs.prepare.outputs.version-build }}
+        -X github.com/webitel/chat-migration-cli-custom/internal/buildinfo.GitCommit=${{ needs.prepare.outputs.commit }}
+        -X github.com/webitel/chat-migration-cli-custom/internal/buildinfo.BuildTime=${{ needs.prepare.outputs.build-timestamp }}
+      scripts: ''
+    service: false
+
   webitel/chat_manager:
     name: webitel-messages
     build:
