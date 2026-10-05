@@ -28,7 +28,6 @@ jobs:
       versioning: ((( versioning | default("calver") )))
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.event.workflow_run.head_branch }}
-      # Pull requests build and deliver amd64 only.
       arch: amd64
       codename: ((( build.codename | default("${{ vars.DEB_CODENAME }}") )))
 
@@ -36,7 +35,6 @@ jobs:
     name: Publish .deb package (${{ matrix.arch }}/${{ matrix.codename }})
     needs: [ version ]
     strategy:
-      # One failed upload must not cancel the others while they hold the APT repository lock.
       fail-fast: false
       matrix:
         arch: ${{ fromJSON(needs.version.outputs.arch-matrix) }}
