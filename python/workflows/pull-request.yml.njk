@@ -22,6 +22,8 @@ jobs:
       versioning: ((( versioning | default("calver") )))
       development-branch: ${{ github.event.repository.default_branch }}
       triggered-branch: ${{ github.event.pull_request.base.ref }}
+      arch: ((( build.arch | default("${{ vars.BUILD_ARCH }}") )))
+      codename: ((( build.codename | default("${{ vars.DEB_CODENAME }}") )))
 
   checks:
     name: Checks
@@ -38,9 +40,13 @@ jobs:
   compile:
     name: Build
     needs: [ prepare ]
+    strategy:
+      matrix:
+        arch: ${{ fromJSON(needs.prepare.outputs.arch-matrix) }}
+
     uses: webitel/reusable-workflows/.github/workflows/python-build.yml@((( version )))
     with:
-      arch: ((( build["pull-request-arch"] | default("amd64") )))
+      arch: ${{ matrix.arch }}
       version: ${{ needs.prepare.outputs.version }}
       version-build: ${{ needs.prepare.outputs.version-build }}
       build-timestamp: ${{ needs.prepare.outputs.build-timestamp }}

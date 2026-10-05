@@ -6,8 +6,6 @@
 
 defaults:
   version: v2
-  build:
-    pull-request-arch: all
 
 files:
   - source: node/workflows/workflow.yml.njk
