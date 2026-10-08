@@ -10,15 +10,11 @@
 #     itself, so it works for single- and multi-unit packages alike;
 #   * service-specific setup (e.g. creating data dirs or certificates) is
 #     provided by the package as drop-in hooks (see run_postinst_hooks).
-#
-# Services run as the unprivileged system account $USER_NAME. Hooks use
-# $USER_NAME/$GROUP_NAME for file ownership.
 
 set -e
 
 USER_NAME="webitel-svc"
 GROUP_NAME="webitel-svc"
-# Services keep state in $HOME (e.g. go-micro creates its directories there).
 HOME_DIR="/var/lib/webitel"
 
 have_systemctl() {
@@ -52,9 +48,6 @@ create_user() {
     assert_system_user
 }
 
-# Refuse to run the services as a login account, e.g. one an operator created
-# by hand under the same name. System accounts have a UID below 1000 (the
-# Debian adduser default) and no login shell.
 assert_system_user() {
     local uid shell
     uid=$(id -u "$USER_NAME")
