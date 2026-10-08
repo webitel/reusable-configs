@@ -21,6 +21,9 @@ USER_NAME="webitel-svc"
 GROUP_NAME="webitel-svc"
 # Services keep state in $HOME (e.g. go-micro creates its directories there).
 HOME_DIR="/var/lib/webitel"
+# Roots several packages write to. They are migrated here rather than in the
+# hooks of each package that writes there.
+SHARED_DIRS="$HOME_DIR /usr/share/webitel"
 
 # Account the services ran as before. Customers may use it as a support user
 # with sudo rights, so it is never modified or removed, only its files under
@@ -60,7 +63,8 @@ create_user() {
 
     # adduser leaves an existing home untouched; a legacy system "webitel"
     # account was created with the same home.
-    migrate_legacy_owner "$HOME_DIR"
+    # shellcheck disable=SC2086 # SHARED_DIRS is a list of paths
+    migrate_legacy_owner $SHARED_DIRS
 }
 
 # Refuse to run the services as a login account, e.g. one an operator created
