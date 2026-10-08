@@ -12,8 +12,7 @@
 #     provided by the package as drop-in hooks (see run_postinst_hooks).
 #
 # Services run as the unprivileged system account $USER_NAME. Hooks use
-# $USER_NAME/$GROUP_NAME for file ownership and migrate_legacy_owner to take
-# over data created by $LEGACY_USER_NAME.
+# $USER_NAME/$GROUP_NAME for file ownership.
 
 set -e
 
@@ -21,15 +20,6 @@ USER_NAME="webitel-svc"
 GROUP_NAME="webitel-svc"
 # Services keep state in $HOME (e.g. go-micro creates its directories there).
 HOME_DIR="/var/lib/webitel"
-# Roots several packages write to. They are migrated here rather than in the
-# hooks of each package that writes there.
-SHARED_DIRS="$HOME_DIR /usr/share/webitel"
-
-# Account the services ran as before. Customers may use it as a support user
-# with sudo rights, so it is never modified or removed, only its files under
-# the paths handed to migrate_legacy_owner change owner.
-LEGACY_USER_NAME="webitel"
-LEGACY_GROUP_NAME="webitel"
 
 have_systemctl() {
     command -v systemctl >/dev/null 2>&1
@@ -60,11 +50,6 @@ create_user() {
     fi
 
     assert_system_user
-
-    # adduser leaves an existing home untouched; a legacy system "webitel"
-    # account was created with the same home.
-    # shellcheck disable=SC2086 # SHARED_DIRS is a list of paths
-    migrate_legacy_owner $SHARED_DIRS
 }
 
 # Refuse to run the services as a login account, e.g. one an operator created
@@ -89,30 +74,6 @@ assert_system_user() {
             exit 1
             ;;
     esac
-}
-
-# Hand the files of the legacy service account under the given paths over to
-# $USER_NAME. Hooks call it for the data their service writes (e.g. storage
-# recordings), so each package migrates its own data in the upgrade that
-# switches its units to $USER_NAME. A chown that fails (e.g. a root-squashed
-# NFS mount) is reported but does not abort the install.
-migrate_legacy_owner() {
-    local path
-    for path in "$@"; do
-        [ -e "$path" ] || continue
-
-        if getent passwd "$LEGACY_USER_NAME" >/dev/null 2>&1; then
-            find "$path" -user "$LEGACY_USER_NAME" \
-                -exec chown -h "$USER_NAME" {} + \
-                || echo "WARNING: could not change owner of some files under $path" >&2
-        fi
-
-        if getent group "$LEGACY_GROUP_NAME" >/dev/null 2>&1; then
-            find "$path" -group "$LEGACY_GROUP_NAME" \
-                -exec chgrp -h "$GROUP_NAME" {} + \
-                || echo "WARNING: could not change group of some files under $path" >&2
-        fi
-    done
 }
 
 # Run service-specific setup shipped by the package, BEFORE any unit is
