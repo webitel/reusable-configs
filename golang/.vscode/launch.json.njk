@@ -12,7 +12,6 @@
       "program": "${workspaceFolder}",
       "args": ((( ([] if r.subcommand === false else [r.name]).concat(r.args or []) | dump | safe ))),
       "envFile": ((( ("${workspaceFolder}/.env" + ("." + r.name if multi else "")) | dump | safe ))),
-      "console": "integratedTerminal",
       "hideSystemGoroutines": true,
       "presentation": { "group": "1-run" }
     },
@@ -28,7 +27,6 @@
       "envFile": ((( ("${workspaceFolder}/.env" + ("." + r.name if multi else "")) | dump | safe ))),
       "env": { "CGO_ENABLED": "1" },
       "buildFlags": "-race",
-      "console": "integratedTerminal",
       "hideSystemGoroutines": true,
       "presentation": { "group": "2-race" }
     },
@@ -40,7 +38,6 @@
       "mode": "test",
       "program": "${fileDirname}",
       "envFile": ((( ("${workspaceFolder}/.env" + ("." + run[0].name if multi else "")) | dump | safe ))),
-      "console": "integratedTerminal",
       "hideSystemGoroutines": true,
       "presentation": { "group": "3-debug" }
     },
