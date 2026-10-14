@@ -19,7 +19,7 @@
 {% endfor %}
 {% for r in services %}
     {
-      "name": ((( ("Race: " + r.name) | dump | safe ))),
+      "name": ((( ("Run: " + r.name + " (with race)") | dump | safe ))),
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -62,8 +62,8 @@
       "presentation": { "group": "1-run" }
     },
     {
-      "name": "Race: all",
-      "configurations": [{% for r in services %}((( ("Race: " + r.name) | dump | safe ))){% if not loop.last %}, {% endif %}{% endfor %}],
+      "name": "Run: all (with race)",
+      "configurations": [{% for r in services %}((( ("Run: " + r.name + " (with race)") | dump | safe ))){% if not loop.last %}, {% endif %}{% endfor %}],
       "stopAll": true,
       "presentation": { "group": "2-race" }
     }
