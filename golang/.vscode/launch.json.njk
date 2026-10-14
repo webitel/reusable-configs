@@ -1,0 +1,72 @@
+{% set services = run | rejectattr("oneshot") %}
+{% set multi = services | length > 1 %}
+{
+  "version": "0.2.0",
+  "configurations": [
+{% for r in run %}
+    {
+      "name": ((( ("Run: " + r.name) | dump | safe ))),
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ((( ([] if r.subcommand === false else [r.name]).concat(r.args or []) | dump | safe ))),
+      "envFile": ((( ("${workspaceFolder}/.env" + ("." + r.name if multi else "")) | dump | safe ))),
+      "console": "integratedTerminal",
+      "hideSystemGoroutines": true,
+      "presentation": { "group": "1-run" }
+    },
+{% endfor %}
+{% for r in services %}
+    {
+      "name": ((( ("Run: " + r.name + " (with race)") | dump | safe ))),
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ((( ([] if r.subcommand === false else [r.name]).concat(r.args or []) | dump | safe ))),
+      "envFile": ((( ("${workspaceFolder}/.env" + ("." + r.name if multi else "")) | dump | safe ))),
+      "env": { "CGO_ENABLED": "1" },
+      "buildFlags": "-race",
+      "console": "integratedTerminal",
+      "hideSystemGoroutines": true,
+      "presentation": { "group": "2-race" }
+    },
+{% endfor %}
+    {
+      "name": "Tests: current package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${fileDirname}",
+      "envFile": ((( ("${workspaceFolder}/.env" + ("." + run[0].name if multi else "")) | dump | safe ))),
+      "console": "integratedTerminal",
+      "hideSystemGoroutines": true,
+      "presentation": { "group": "3-debug" }
+    },
+    {
+      "name": "Attach: local process",
+      "type": "go",
+      "request": "attach",
+      "mode": "local",
+      "processId": "${command:pickGoProcess}",
+      "hideSystemGoroutines": true,
+      "presentation": { "group": "3-debug" }
+    }
+  ]{% if services | length > 1 %},
+  "compounds": [
+    {
+      "name": "Run: all",
+      "configurations": [{% for r in services %}((( ("Run: " + r.name) | dump | safe ))){% if not loop.last %}, {% endif %}{% endfor %}],
+      "stopAll": true,
+      "presentation": { "group": "1-run" }
+    },
+    {
+      "name": "Run: all (with race)",
+      "configurations": [{% for r in services %}((( ("Run: " + r.name + " (with race)") | dump | safe ))){% if not loop.last %}, {% endif %}{% endfor %}],
+      "stopAll": true,
+      "presentation": { "group": "2-race" }
+    }
+  ]{% endif %}
+
+}
