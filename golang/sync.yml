@@ -14,6 +14,8 @@ defaults:
   branch: main
   service: true
   deliver: true
+  run:
+    - name: server
   build:
     # Generic Debian maintainer scripts, synced from common/deploy/debian/ (files with when: service).
     # Repositories without them set scripts: ''.
@@ -43,6 +45,13 @@ files:
   - source: golang/.vscode
     dest: .vscode
     header: false
+    exclude: |
+      launch.json.njk
+
+  - source: golang/.vscode/launch.json.njk
+    dest: .vscode/launch.json
+    header: false
+    when: service
 
   - source: golang/configs/.editorconfig
     dest: .editorconfig
@@ -97,6 +106,9 @@ repos:
 
   webitel/call_center:
     name: webitel-call-center
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-call-center
       ldflags: |
@@ -109,6 +121,9 @@ repos:
 
   webitel/cases:
     name: webitel-cases
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-cases
       ldflags: |
@@ -148,6 +163,9 @@ repos:
 
   webitel/chat_manager:
     name: webitel-messages
+    run:
+      - name: app
+      - name: bot
     build:
       binary-name: webitel-messages
       ldflags: |
@@ -164,6 +182,9 @@ repos:
 
   webitel/engine:
     name: webitel-engine
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-engine
       ldflags: |
@@ -177,6 +198,9 @@ repos:
 
   webitel/flow_manager:
     name: webitel-flow-manager
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-flow-manager
       ldflags: |
@@ -190,6 +214,10 @@ repos:
 
   webitel/im-account-service:
     name: webitel-im-account
+    run:
+      - name: server
+      - name: migrate
+        oneshot: true
     build:
       binary-name: webitel-im-account
       ldflags: |
@@ -202,6 +230,10 @@ repos:
 
   webitel/im-contact-service:
     name: webitel-im-contact
+    run:
+      - name: server
+      - name: migrate
+        oneshot: true
     build:
       binary-name: webitel-im-contact
       ldflags: |
@@ -250,6 +282,10 @@ repos:
 
   webitel/im-thread-service:
     name: webitel-im-thread
+    run:
+      - name: server
+      - name: migrate
+        oneshot: true
     build:
       binary-name: webitel-im-thread
       ldflags: |
@@ -262,6 +298,9 @@ repos:
 
   webitel/logger:
     name: webitel-logger
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-logger
       ldflags: |
@@ -272,6 +311,8 @@ repos:
 
   webitel/media-exporter:
     name: webitel-media-exporter
+    run:
+      - name: api
     build:
       binary-name: webitel-media-exporter
       ldflags: |
@@ -297,6 +338,9 @@ repos:
 
   webitel/storage:
     name: webitel-storage
+    run:
+      - name: server
+        subcommand: false
     build:
       binary-name: webitel-storage
       ldflags: |
@@ -324,6 +368,10 @@ repos:
 
   webitel/webitel-kb:
     name: webitel-kb
+    run:
+      - name: server
+      - name: migrate
+        oneshot: true
     build:
       binary-name: webitel-kb
       ldflags: |
@@ -338,6 +386,10 @@ repos:
 
   webitel/webitel-wfm:
     name: webitel-wfm
+    run:
+      - name: api
+      - name: migrate
+        oneshot: true
     build:
       binary-name: webitel-wfm
       ldflags: |
@@ -350,6 +402,11 @@ repos:
 
   webitel/webitel.go:
     name: webitel-core
+    run:
+      - name: app
+      - name: api
+      - name: uac
+      - name: portal
     build:
       binary-name: webitel
       ldflags: |
