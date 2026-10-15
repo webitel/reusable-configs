@@ -353,6 +353,13 @@ repos:
         src=deploy/debian/postinst.d/ dst=/usr/lib/webitel/webitel-storage/deb/postinst.d/
         src=.env.example dst=/etc/default/webitel-storage type=config mode=0640
 
+  webitel/webitel-audit:
+    name: webitel-audit
+    build:
+      binary-name: webitel-audit
+      ldflags: |
+        -s -w
+
   webitel/webitel-fts:
     name: webitel-fts
     build:
