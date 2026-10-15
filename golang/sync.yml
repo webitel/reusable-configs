@@ -355,6 +355,8 @@ repos:
 
   webitel/webitel-audit:
     name: webitel-audit
+    run:
+      - name: server
     build:
       binary-name: webitel-audit
       ldflags: |
