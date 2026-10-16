@@ -35,6 +35,9 @@ files:
   - source: golang/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
 
+  - source: golang/workflows/vulncheck.yml.njk
+    dest: .github/workflows/vulncheck.yml
+
   - source: golang/configs/.gitignore
     dest: .gitignore
 

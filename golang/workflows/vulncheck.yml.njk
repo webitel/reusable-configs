@@ -1,0 +1,26 @@
+name: Vulnerabilities
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+
+  workflow_dispatch:
+
+permissions: { contents: read }
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  govulncheck:
+    name: Scan
+    uses: webitel/reusable-workflows/.github/workflows/golang-vulncheck.yml@((( version )))
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+{% if build["cgo-enabled"] %}
+    with:
+      cgo-enabled: true
+{% endif %}
