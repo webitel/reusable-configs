@@ -12,7 +12,6 @@ defaults:
       postinstall: deploy/debian/postinst.sh
       preremove: deploy/debian/prerm.sh
       postremove: deploy/debian/postrm.sh
-  # Identity and runner of the analyze job in python-checks.yml, continued by codeql-scheduled.yml
   codeql:
     analysis-key: .github/workflows/python-checks.yml:analyze
     runs-on: arc-python-runner-set

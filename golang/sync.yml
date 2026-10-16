@@ -23,7 +23,6 @@ defaults:
       postinstall: deploy/debian/postinst.sh
       preremove: deploy/debian/prerm.sh
       postremove: deploy/debian/postrm.sh
-  # Identity and runner of the analyze job in golang-checks.yml, continued by codeql-scheduled.yml
   codeql:
     analysis-key: .github/workflows/golang-checks.yml:analyze
     runs-on: arc-backend-runner-set

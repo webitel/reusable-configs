@@ -6,7 +6,6 @@
 
 defaults:
   version: v2
-  # Identity and runner of the analyze job in node-checks.yml, continued by codeql-scheduled.yml
   codeql:
     analysis-key: .github/workflows/node-checks.yml:analyze
     runs-on: arc-frontend-runner-set
