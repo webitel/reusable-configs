@@ -20,9 +20,6 @@ files:
   - source: python/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
 
-  - source: common/workflows/pull-request-deliver.yml.njk
-    dest: .github/workflows/pull-request-deliver.yml
-
   - source: python/configs/.gitignore
     dest: .gitignore
 
