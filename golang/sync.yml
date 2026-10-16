@@ -353,6 +353,15 @@ repos:
         src=deploy/debian/postinst.d/ dst=/usr/lib/webitel/webitel-storage/deb/postinst.d/
         src=.env.example dst=/etc/default/webitel-storage type=config mode=0640
 
+  webitel/webitel-ai-hub:
+    name: webitel-ai-hub
+    run:
+      - name: server
+    build:
+      binary-name: webitel-ai-hub
+      ldflags: |
+        -s -w
+
   webitel/webitel-audit:
     name: webitel-audit
     run:
