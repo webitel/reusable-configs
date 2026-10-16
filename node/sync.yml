@@ -14,9 +14,6 @@ files:
   - source: node/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
 
-  - source: common/workflows/pull-request-deliver.yml.njk
-    dest: .github/workflows/pull-request-deliver.yml
-
   - source: node/configs/dependabot.yml
     dest: .github/dependabot.yml
 

@@ -7,13 +7,11 @@
 # Flags used by `when`:
 #   service: deployable service (Debian maintainer scripts, OpenTelemetry env example, backports,
 #            release branches). Tools such as chat-migration-cli set it to false.
-#   deliver: build and upload a package for every pull request (pull-request-deliver.yml).
 
 defaults:
   version: v2
   branch: main
   service: true
-  deliver: true
   run:
     - name: server
   build:
@@ -30,10 +28,6 @@ files:
 
   - source: golang/workflows/pull-request.yml.njk
     dest: .github/workflows/pull-request.yml
-
-  - source: common/workflows/pull-request-deliver.yml.njk
-    dest: .github/workflows/pull-request-deliver.yml
-    when: deliver
 
   - source: golang/configs/.gitignore
     dest: .gitignore
@@ -443,7 +437,6 @@ repos:
         src=.env.api.example dst=/etc/default/webitel-api type=config mode=0640
         src=.env.uac.example dst=/etc/default/webitel-uac type=config mode=0640
         src=.env.portal.example dst=/etc/default/webitel-portal type=config mode=0640
-    deliver: false
 
   webitel/webrtc_recorder:
     name: webitel-webrtc-rec
