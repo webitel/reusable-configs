@@ -6,6 +6,13 @@
 
 defaults:
   version: v2
+  # Identity and runner of the analyze job in node-checks.yml, continued by codeql-scheduled.yml
+  codeql:
+    analysis-key: .github/workflows/node-checks.yml:analyze
+    runs-on: arc-frontend-runner-set
+    languages:
+      - { language: javascript, build-mode: none }
+      - { language: actions, build-mode: none }
 
 files:
   - source: node/workflows/workflow.yml.njk
@@ -31,6 +38,9 @@ files:
 
   - source: common/workflows/backport.yml.njk
     dest: .github/workflows/backport.yml
+
+  - source: common/workflows/codeql-scheduled.yml.njk
+    dest: .github/workflows/codeql-scheduled.yml
 
   - source: common/workflows/cleanup-artifacts.yml.njk
     dest: .github/workflows/cleanup-artifacts.yml

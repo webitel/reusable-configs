@@ -12,6 +12,13 @@ defaults:
       postinstall: deploy/debian/postinst.sh
       preremove: deploy/debian/prerm.sh
       postremove: deploy/debian/postrm.sh
+  # Identity and runner of the analyze job in python-checks.yml, continued by codeql-scheduled.yml
+  codeql:
+    analysis-key: .github/workflows/python-checks.yml:analyze
+    runs-on: arc-python-runner-set
+    languages:
+      - { language: python, build-mode: none }
+      - { language: actions, build-mode: none }
 
 files:
   - source: python/workflows/workflow.yml.njk
@@ -49,6 +56,9 @@ files:
 
   - source: common/workflows/dependabot-auto-merge.yml
     dest: .github/workflows/dependabot-auto-merge.yml
+
+  - source: common/workflows/codeql-scheduled.yml.njk
+    dest: .github/workflows/codeql-scheduled.yml
 
   - source: common/workflows/cleanup-artifacts.yml.njk
     dest: .github/workflows/cleanup-artifacts.yml

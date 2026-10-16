@@ -1,0 +1,33 @@
+# Re-runs CodeQL on the default branch weekly, so code scanning picks up new CodeQL queries without pushes.
+name: CodeQL (scheduled)
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"
+
+  workflow_dispatch:
+    inputs:
+      force:
+        type: boolean
+        default: false
+        description: Analyze even languages analyzed within the last 7 days
+
+permissions: { contents: read }
+
+jobs:
+  codeql:
+    name: CodeQL
+    uses: webitel/reusable-workflows/.github/workflows/codeql-scheduled.yml@((( version )))
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    with:
+      languages: '((( codeql.languages | dump | safe )))'
+      analysis-key: ((( codeql["analysis-key"] )))
+      runs-on: ((( codeql["runs-on"] )))
+{% if build["cgo-enabled"] %}
+      cgo-enabled: true
+{% endif %}
+      max-age-days: ${{ fromJSON(inputs.force && '0' || '7') }}
