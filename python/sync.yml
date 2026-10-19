@@ -13,7 +13,7 @@ defaults:
       preremove: deploy/debian/prerm.sh
       postremove: deploy/debian/postrm.sh
   codeql:
-    analysis-key: .github/workflows/python-checks.yml:analyze
+    analysis-key: .github/workflows/workflow.yml:analyze
     runs-on: arc-python-runner-set
     languages:
       - { language: python, build-mode: none }
