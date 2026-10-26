@@ -55,7 +55,7 @@ jobs:
       main-path: ((( build["main-path"] )))
 {% endif %}
       ldflags: >
-{% if build.crypto or build["crypto-dir"] %}
+{% if build.crypto %}
         ((( build["ldflags"] | trim | safe | indent(8) )))
         -X github.com/webitel/crypto/cryptobox.defaultSystemDir=/var/lib/webitel/crypto
 {% else %}

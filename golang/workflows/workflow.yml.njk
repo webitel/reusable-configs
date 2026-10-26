@@ -65,30 +65,33 @@ jobs:
           sparse-checkout: go.mod
           sparse-checkout-cone-mode: false
 
-      - name: Resolve webitel-cryptoctl dependency
+      - name: Resolve package dependencies
         id: depends
         shell: bash
         env:
           BRANCH: ${{ github.ref_name }}
+          STATIC_DEPENDS: ((( build["package-depends"] )))
         run: |
+          deps=()
+          [[ -n $STATIC_DEPENDS ]] && deps+=("$STATIC_DEPENDS")
+
           ver=$(awk '$1 == "github.com/webitel/webitel-cryptoctl" { print $2; exit }
             $1 == "require" && $2 == "github.com/webitel/webitel-cryptoctl" { print $3; exit }' go.mod)
-          if [[ -z $ver ]]; then
-            echo "::error::build.crypto is set but go.mod does not require github.com/webitel/webitel-cryptoctl"
-            exit 1
-          fi
-
-          if [[ $BRANCH =~ ^v[0-9]{2}\.[0-9]{1,2}$ ]]; then
-            if [[ ! $ver =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::webitel-cryptoctl $ver is a pseudo-version; release branches require a tag"
-              exit 1
+          if [[ -n $ver ]]; then
+            if [[ $BRANCH =~ ^v[0-9]{2}\.[0-9]{1,2}$ ]]; then
+              if [[ ! $ver =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                echo "::error::webitel-cryptoctl $ver is a pseudo-version; release branches require a tag"
+                exit 1
+              fi
+              deps+=("webitel-cryptoctl (>= ${ver#v})")
+            else
+              deps+=("webitel-cryptoctl")
             fi
-            depends="webitel-cryptoctl (>= ${ver#v})"
-          else
-            depends="webitel-cryptoctl"
           fi
 
-          echo "Depends: $depends"
+          depends=""
+          for dep in "${deps[@]}"; do depends+="${depends:+, }$dep"; done
+          echo "Depends: ${depends:-none}"
           echo "depends=$depends" >> "$GITHUB_OUTPUT"
 
 {% endif %}
@@ -107,7 +110,7 @@ jobs:
       main-path: ((( build["main-path"] )))
 {% endif %}
       ldflags: >
-{% if build.crypto or build["crypto-dir"] %}
+{% if build.crypto %}
         ((( build["ldflags"] | trim | safe | indent(8) )))
         -X github.com/webitel/crypto/cryptobox.defaultSystemDir=/var/lib/webitel/crypto
 {% else %}
@@ -126,7 +129,7 @@ jobs:
         ((( build["package-contents"] | safe | indent(8) )))
 
 {% if build.crypto %}
-      package-depends: ((( (build["package-depends"] ~ ", ") if build["package-depends"] )))${{ needs.crypto.outputs.depends }}
+      package-depends: ${{ needs.crypto.outputs.depends }}
 {% else %}
       package-depends: ((( build["package-depends"] )))
 {% endif %}

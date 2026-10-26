@@ -9,9 +9,9 @@
 #             Tools such as chat-migration-cli set it to false.
 #   releases: release branches and backports. Tools without release lines set it to false.
 #
-# build.crypto:     depends on webitel-cryptoctl and bakes in the Webitel key dir.
-# build.crypto-dir: bakes in the Webitel key dir only (uses cryptobox without webitel-cryptoctl).
-# build.main-path:  package to build, when not the repository root.
+# build.crypto:    uses github.com/webitel/crypto: bakes in the Webitel key dir; depends on
+#                  webitel-cryptoctl when go.mod requires github.com/webitel/webitel-cryptoctl.
+# build.main-path: package to build, when not the repository root.
 
 defaults:
   version: v2
@@ -360,7 +360,7 @@ repos:
       - name: server
         subcommand: false
     build:
-      crypto-dir: true
+      crypto: true
       binary-name: webitel-storage
       ldflags: |
         -s -w
@@ -427,7 +427,7 @@ repos:
       - name: migrate
         oneshot: true
     build:
-      crypto-dir: true
+      crypto: true
       binary-name: webitel-kb
       ldflags: |
         -s -w
