@@ -5,13 +5,19 @@
 # repos:    one entry per repository with its variables. Adding a repository = adding an entry here.
 #
 # Flags used by `when`:
-#   service: deployable service (Debian maintainer scripts, OpenTelemetry env example, backports,
-#            release branches). Tools such as chat-migration-cli set it to false.
+#   service:  deployable service (Debian maintainer scripts, OpenTelemetry env example).
+#             Tools such as chat-migration-cli set it to false.
+#   releases: release branches and backports. Tools without release lines set it to false.
+#
+# build.crypto:    uses github.com/webitel/crypto: bakes in the Webitel key dir; depends on
+#                  webitel-cryptoctl when go.mod requires github.com/webitel/webitel-cryptoctl.
+# build.main-path: package to build, when not the repository root.
 
 defaults:
   version: v2
   branch: main
   service: true
+  releases: true
   run:
     - name: server
   build:
@@ -92,15 +98,15 @@ files:
 
   - source: common/workflows/backport-trigger.yml.njk
     dest: .github/workflows/backport-trigger.yml
-    when: service
+    when: releases
 
   - source: common/workflows/backport.yml.njk
     dest: .github/workflows/backport.yml
-    when: service
+    when: releases
 
   - source: common/workflows/release-branch.yml
     dest: .github/workflows/release-branch.yml
-    when: service
+    when: releases
 
 repos:
   webitel/call_audit:
@@ -152,6 +158,7 @@ repos:
         -X github.com/webitel/chat-migration-cli/internal/buildinfo.BuildTime=${{ needs.prepare.outputs.build-timestamp }}
       scripts: ''
     service: false
+    releases: false
 
   webitel/chat-migration-cli-custom:
     versioning: semver
@@ -166,6 +173,7 @@ repos:
         -X github.com/webitel/chat-migration-cli-custom/internal/buildinfo.BuildTime=${{ needs.prepare.outputs.build-timestamp }}
       scripts: ''
     service: false
+    releases: false
 
   webitel/chat_manager:
     name: webitel-messages
@@ -173,6 +181,7 @@ repos:
       - name: app
       - name: bot
     build:
+      crypto: true
       binary-name: webitel-messages
       ldflags: |
         -s -w
@@ -192,6 +201,7 @@ repos:
       - name: server
         subcommand: false
     build:
+      crypto: true
       binary-name: webitel-engine
       ldflags: |
         -s -w
@@ -208,6 +218,7 @@ repos:
       - name: server
         subcommand: false
     build:
+      crypto: true
       binary-name: webitel-flow-manager
       ldflags: |
         -s -w
@@ -341,6 +352,7 @@ repos:
         src=/usr/local/bin/nomad-driver-systemd dst=/opt/nomad/plugins/nomad-driver-systemd type=symlink
       scripts: ''
     service: false
+    releases: false
 
   webitel/storage:
     name: webitel-storage
@@ -348,6 +360,7 @@ repos:
       - name: server
         subcommand: false
     build:
+      crypto: true
       binary-name: webitel-storage
       ldflags: |
         -s -w
@@ -377,6 +390,23 @@ repos:
       ldflags: |
         -s -w
 
+  webitel/webitel-cryptoctl:
+    name: webitel-cryptoctl
+    versioning: semver
+    service: false
+    build:
+      binary-name: cryptoctl
+      main-path: github.com/webitel/crypto/cmd/cryptoctl
+      ldflags: |
+        -s -w
+        -X github.com/webitel/crypto/cryptobox.defaultSystemDir=/var/lib/webitel/crypto
+      package-contents: |
+        src=schema/schema.d/ dst=/usr/share/webitel/crypto/schema.d/
+        src=store.d/ dst=/usr/share/webitel/crypto/store.d/
+        src=bin/webitel-cryptoctl dst=/usr/bin/webitel-cryptoctl mode=0755
+        src=.env.example dst=/etc/default/webitel-cryptoctl type=config mode=0640
+      scripts: ''
+
   webitel/webitel-fts:
     name: webitel-fts
     build:
@@ -397,6 +427,7 @@ repos:
       - name: migrate
         oneshot: true
     build:
+      crypto: true
       binary-name: webitel-kb
       ldflags: |
         -s -w
@@ -432,6 +463,7 @@ repos:
       - name: uac
       - name: portal
     build:
+      crypto: true
       binary-name: webitel
       ldflags: |
         -s -w
