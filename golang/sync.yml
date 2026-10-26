@@ -10,7 +10,7 @@
 #   releases: release branches and backports. Tools without release lines set it to false.
 #
 # build.crypto:    uses github.com/webitel/crypto: bakes in the Webitel key dir; depends on
-#                  webitel-cryptoctl when go.mod requires github.com/webitel/webitel-cryptoctl.
+#                  webitel-cryptoctl when go.mod requires github.com/webitel/webitel-cryptoctl/schema.
 # build.main-path: package to build, when not the repository root.
 
 defaults:
