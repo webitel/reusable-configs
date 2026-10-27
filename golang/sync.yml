@@ -396,12 +396,10 @@ repos:
     service: false
     build:
       binary-name: cryptoctl
-      main-path: github.com/webitel/crypto/cmd/cryptoctl
       ldflags: |
         -s -w
         -X github.com/webitel/crypto/cryptobox.defaultSystemDir=/var/lib/webitel/crypto
       package-contents: |
-        src=schema/schema.d/ dst=/usr/share/webitel/crypto/schema.d/
         src=store.d/ dst=/usr/share/webitel/crypto/store.d/
         src=bin/webitel-cryptoctl dst=/usr/bin/webitel-cryptoctl mode=0755
         src=.env.example dst=/etc/default/webitel-cryptoctl type=config mode=0640
