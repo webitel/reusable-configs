@@ -122,6 +122,7 @@ repos:
       - name: server
         subcommand: false
     build:
+      crypto: true
       binary-name: webitel-call-center
       ldflags: |
         -s -w
